@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window apply="imis.Iwill_003Composer">
+
+        <hbox align="center">
+            <g:link url="index.zul">
+                <image src="${z.resource(dir:'images', file:'iwill_logo.jpg')}"/>
+            </g:link>
+        </hbox>
+
+        门店设定 
+        <grid id="g1" height="600px" width="400px">
+            <columns>
+                <column hflex="2">门店代号</column>
+                <column hflex="2">门店名称</column>
+                <column hflex="1">现烤</column>
+                <column hflex="1">现裱</column>
+                <column hflex="1">水吧</column>
+            </columns>        
+            <rows>
+                <template name="model">
+                    <row>
+                        <label value="#{each.S_NO}"/>
+                        <label value="#{each.S_NAME}"/>
+                        <cell>
+                            <checkbox value="#{each.S_NO}.bake" checked="#{each.bake}" />  
+                        </cell>
+                        <cell>
+                            <checkbox value="#{each.S_NO}.mount" checked="#{each.mount}" />  
+                        </cell>
+                        <cell>
+                            <checkbox value="#{each.S_NO}.bar" checked="#{each.bar}" />  
+                        </cell>
+                    </row>
+                </template>
+            </rows>
+        </grid> 
+
+        <button>Save</button>
+
+    </window>
+
+</zk>

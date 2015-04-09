@@ -1,0 +1,7 @@
+*.swp
+target/*
+imis.sql
+node_modules/*
+web-app/upload/*
+web-app/bower_components/*
+

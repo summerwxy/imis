@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+<?link rel="stylesheet" type="text/css" href="js/select2-3.2/select2.css"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/select2-3.2/select2.min.js"></script>
+    <script type="text/javascript">
+        zk.afterMount(function() {
+            $('#s01').select2();
+        });
+    </script>
+
+    <window apply="imis.Iwill_002Composer">
+        <hbox align="center">
+            <g:link url="index.zul">
+                <image src="${z.resource(dir:'images', file:'iwill_logo.jpg')}"/>
+            </g:link>
+        </hbox>
+
+        <listbox mold="select" id="the_store">
+            <template name="model">
+                <listitem label="#{each.S_NAME}" value="#{each.S_NO}" />
+            </template>
+            
+            <listitem label="CCCC" />
+        </listbox>
+
+        <h:select id="the_store2">
+            <h:optgroup label="aaa">
+                <h:option>AAA</h:option>
+            </h:optgroup>
+        </h:select>
+
+    
+
+    </window>
+</zk>

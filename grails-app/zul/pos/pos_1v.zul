@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window apply="imis.Pos_1vComposer" height="90%">
+        <panel title="1V 门市产品模版" border="normal" width="100%">
+            <panelchildren>
+                <hbox spacing="0" width="100%" height="90%">
+                    <listbox id="lb1" height="600px">
+                        <listhead>
+                            <listheader label="序号"/>
+                            <listheader label="编号"/>
+                            <listheader label="名称"/>
+                		</listhead>
+                        <template name="model">
+                            <listitem>
+                                <listcell label="#{each.RECNO}"/>
+                                <listcell label="#{each.D_NO}"/>
+                                <listcell label="#{each.D_CNAME}"/>
+                            </listitem>
+                        </template>
+                    </listbox>
+                    <splitter id="sp1" />
+                    <listbox id="lb2" height="600px">
+                        <listhead>
+                            <listheader label="序号"/>
+                            <listheader label="编号"/>
+                            <listheader label="名称"/>
+                		</listhead>
+                        <template name="model">
+                            <listitem>
+                                <listcell label="#{each.RECNO}"/> 
+                                <listcell label="#{each.P_NO}"/> 
+                                <listcell label="#{each.P_NAME}"/> 
+                            </listitem>
+                        </template>
+                    </listbox>
+                    <splitter id="sp2" />
+                    <listbox id="lb3" height="600px">
+                        <listhead>
+                            <listheader label="门店"/>
+                            <listheader label="即时库存"/>
+                        </listhead>
+                        <template name="model">
+                            <listitem>
+                                <listcell label="#{each.S_NAME}"/>
+                                <listcell label="#{each.PS_QTY}"/>
+                            </listitem>
+                        </template>
+                    </listbox>
+                </hbox>
+            </panelchildren>
+        </panel>
+
+    </window>
+
+</zk>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:c="client"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window apply="imis.IndexComposer">
+
+        <hbox align="center">
+            <image src="${z.resource(dir:'images', file:'zkpowered_s.png')}" c:onClick="var foo = 'a';" />
+            <image src="${z.resource(dir:'images', file:'grails_logo.png')}" c:onClick="foo = (foo = 'a') ? 'b' : ''; if (foo = 'b') { jq(this.$f('buttonIwill002')).show(); };"/>
+        </hbox>
+
+        <vbox id="scaffoldingBox"/>
+        <separator />
+        <button id="buttonStore" label="Store"/>.
+        <separator />
+        <button id="buttonPart" label="Part"/>.
+        <separator />
+        <button id="buttonPos6l" label="POS 6L 產品異動明細表" />.
+        <separator />
+        <button id="buttonPos1v" label="POS 1V 門市產品模版" />.
+        <separator />
+        <button id="buttonIwill001" label="2K有單頭沒單身的異常單據"/>
+        <separator />
+        <button id="buttonIwill002" label="Chart"/>
+        <separator />
+        <button id="buttonIwill003" label="门店设定"/>.
+
+        
+
+    </window>
+
+</zk>

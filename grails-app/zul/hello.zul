@@ -1,0 +1,6 @@
+<zk>
+	<window title="Hello World!!" border="normal" width="300px">
+		<select2 id="myComp" text="he he he" />
+        Hello, World!
+	</window>
+</zk>

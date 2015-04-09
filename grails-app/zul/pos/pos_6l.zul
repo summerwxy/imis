@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window id="win" apply="imis.Pos_6lComposer">
+        <grid width="450px">
+            <columns>
+                <column hflex="1" />
+                <column hflex="3" />
+            </columns>
+            <rows>
+                <row>
+                    <label value="门店:" />
+                    <cell>
+                        <bandbox id="t1" autodrop="true" buttonVisible="false"> 
+                            <bandpopup>
+                                <listbox id="lb1" height="350px" width="180px">
+                                    <template name="model">
+                                        <listitem label="#{each.S_NO} - #{each.S_NAME}" />
+                                    </template>
+                                </listbox>
+                            </bandpopup>
+                        </bandbox>
+                        <label id="l1" value="" />
+                    </cell>
+                </row>
+
+                <row>
+                    <label value="品号:" />
+                    <cell>
+                        <bandbox id="t2" autodrop="true" buttonVisible="false"> 
+                            <bandpopup>
+                                <listbox id="lb2" height="350px" width="300px">
+                                    <template name="model">
+                                        <listitem label="#{each.P_NO} - #{each.P_NAME}" />
+                                    </template>
+                                </listbox>
+                            </bandpopup>
+                        </bandbox>
+                        <label id="l2" value="" />
+                    </cell>
+                </row>
+
+                <row>
+                    <label value="日期:" />
+                    <cell>
+                        <datebox id="db1" format="yyyy/MM/dd" width="120px"/>        
+                        ~
+                        <datebox id="db2" format="yyyy/MM/dd" width="120px"/>
+                    </cell>
+                </row>
+                <row>
+                    <cell colspan="2" align="center">
+                         <button id="submit" label="查询"/>
+                    </cell>
+                </row>
+            </rows>
+        </grid>
+
+
+        <separator />
+        <grid id="g1">
+            <columns>
+                <column hflex="2">商品编号</column>
+                <column hflex="2">商品名称</column>
+                <column hflex="1">现在库存量</column>
+                <column hflex="1">异动前库存</column>
+                <column hflex="1">异动量</column>
+                <column hflex="1">单据类型</column>
+                <column hflex="3">原单据编号</column>
+                <column hflex="1">异动日期</column>
+                <column hflex="1">异动时间</column>
+            </columns>        
+            <rows>
+                <template name="model">
+                    <row>
+                        <label value="#{each.P_NO}"/>
+                        <label value="#{each.P_NAME}"/>
+                        <label value="#{each.PS_QTY}"/>
+                        <label value="#{each.PSL_OLD_QTY}"/>
+                        <label value="#{each.PSL_CHG_QTY}"/>
+                        <label value="#{each.REMARK}"/>
+                        <label value="#{each.PSL_BILL_BNO}"/>
+                        <label value="#{each.PLS_DATE}"/>
+                        <label value="#{each.PLS_TIME}"/>
+                    </row>
+                </template>
+            </rows>
+        </grid>
+
+    
+
+    </window>
+
+</zk>

@@ -1,0 +1,23 @@
+{
+  "name": "imis",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-wysiwyg": null,
+    "jquery-legacy": "jquery#1.10",
+    "nvd3": null,
+    "jquery-ui": null,
+    "jquery-weekpicker": null,
+    "angular": null,
+    "jcrop": null,
+    "d3": null,
+    "monthpicker": null,
+    "bootstrap": null
+  }
+}

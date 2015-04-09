@@ -1,0 +1,102 @@
+﻿body
+{
+    background: url(bg.png) 0 0 repeat;
+}
+.rotate-content
+{
+    width: 270px;
+    position: relative;
+    height: 270px;
+    background: url(activity-lottery-bg.png) no-repeat 0 0;
+    background-size: 100% 100%;
+    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+.rotate-con-pan
+{
+    background: url(disk3.png) no-repeat 0 0;
+    background-size: 100% 100%;
+    position: relative;
+    width: 255px;
+    height: 255px;
+    padding-top: 15px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    margin: 0 auto;
+}
+.rotate-con-zhen
+{
+    width: 112px;
+    height: 224px;
+    background: url(start.png) no-repeat 0 0;
+    background-size: 100% 100%;
+    margin: 0 auto;
+    border: 0;
+}
+.divcss5
+{
+    border: 1px dashed #FFF4E8;
+    height: 80px;
+}
+.content
+{
+    margin: 0 0 15px;
+    font: 14px/1.5 Microsoft YaHei,Helvitica,Verdana,Arial,san-serif;
+}
+.boxyellow
+{
+    background-color: #FEF8B2;
+}
+.boxcontent
+{
+    border-radius: 5px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+    margin: 1px 15px 15px;
+    padding: 2px;
+}
+.box
+{
+    border: 1px dashed rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    font-size: 14px;
+}
+.box .title-green
+{
+    background: url("title-bg-green.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-radius: 3px 3px 3px 0;
+    color: #FFFFFF;
+    height: 22px;
+    margin: -1px;
+    padding: 0 5px 0 10px;
+}
+.box .Detail
+{
+    padding: 15px;
+}
+.box .Detail p
+{
+    margin: 0;
+}
+#SetUp1
+{
+    height: auto !important;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+#SetUp
+{
+    height: auto !important;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+#Win
+{
+    height: auto !important;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window apply="imis.Iwill_001Composer">
+
+        <hbox align="center">
+            <g:link url="index.zul">
+                <image src="${z.resource(dir:'images', file:'iwill_logo.jpg')}"/>
+            </g:link>
+        </hbox>
+
+        三個月內有單頭沒單身的2K        
+        <grid id="g1">
+            <columns>
+                <column hflex="1">門店</column>
+                <column hflex="1">日期</column>
+                <column hflex="1">時間</column>
+                <column hflex="1">交易序號</column>
+            </columns>        
+            <rows>
+                <template name="model">
+                    <row>
+                        <label value="#{each.S_NAME}"/>
+                        <label value="#{each.SL_DATE}"/>
+                        <label value="#{each.SL_TIME}"/>
+                        <label value="#{each.SL_NO}"/>
+                    </row>
+                </template>
+            </rows>
+        </grid> 
+    
+    </window>
+
+</zk>
