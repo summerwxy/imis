@@ -54,7 +54,7 @@
 
 <div class="row">
     <div class="span10 offset1">
-        <form method="POS">
+        <form method="POST">
             日期: 
             <div class="controls input-append date form_datetime" data-date-format="yyyy/mm/dd" data-link-field="dtp_input">
                 <input class="input-small" type="text" id="sdate" name="sdate" value="${params.sdate}" readonly>

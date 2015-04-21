@@ -112,6 +112,8 @@
                             <g:link controller="pos" action="refund_pos">门店单品项退货明细</g:link>
                             |
                             <g:link controller="pos" action="r1_pos">销售与退货</g:link>
+                            |
+                            <g:link controller="pos" action="r2_pos">实际业绩升降分析</g:link>
                         </div>
                     </div>
 
