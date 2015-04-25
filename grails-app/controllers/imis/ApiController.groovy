@@ -37,7 +37,7 @@ class ApiController {
         // 用 卡號+生日 驗證
         def sql = _.sql
         def s = """
-            select CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_NAME)) AS C_NAME, C_POINT
+            select CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_NAME)) AS C_NAME, C_POINT, C_NO, CC_NO
             from CUST_V 
             where CC_NO = ? and CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_BIRTH)) = ?
         """
@@ -47,13 +47,15 @@ class ApiController {
             result.message = '验证成功'
             result.name = _.bufferedReader2String(row.C_NAME.characterStream) 
             result.point = row.C_POINT
+            result.vip_no = row.C_NO
+            result.card_no = row.CC_NO
             render result as JSON
             return
         }
 
         // 用 電話+密碼 驗證
         s = """
-            select CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_NAME))AS C_NAME, C_POINT
+            select CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_NAME))AS C_NAME, C_POINT, C_NO, CC_NO
             from CUST_V 
             where CONVERT(NVARCHAR(MAX), DecryptByPassPhrase('Secret_key', C_MOB)) = ?
         """
@@ -69,6 +71,8 @@ class ApiController {
                 result.status = true
                 result.message = '验证成功'
                 result.name = _.bufferedReader2String(row.C_NAME.characterStream)
+                result.vip_no = row.C_NO
+                result.card_no = row.CC_NO                
                 result.point = row.C_POINT
             } else {
                 result.message = bar.Msg
