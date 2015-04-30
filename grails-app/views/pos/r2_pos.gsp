@@ -36,7 +36,7 @@
     </style>
     <script type="text/javascript">
     $(function() {
-        /* month picker
+        // month picker
         $('.form_datetime').datetimepicker({
             language:  'zh-CN',
             autoclose: 1,
@@ -45,8 +45,8 @@
             format: 'yyyy-mm',
             forceParse: 0
         });
-        */
         // datetimepicker
+        /*
         $('.form_datetime').datetimepicker({
             language:  'zh-CN',
             todayBtn:  1,
@@ -54,7 +54,8 @@
             todayHighlight: 1,
             minView: 2,
             forceParse: 0
-        });        
+        });
+        */
     })
     </script>
 </head>
@@ -65,14 +66,9 @@
 <div class="row">
     <div class="span10 offset1">
         <form method="POST">
-            日期: 
+            年月: 
             <div class="controls input-append date form_datetime" data-date-format="yyyy/mm/dd" data-link-field="dtp_input">
                 <input class="input-small" type="text" id="sdate" name="sdate" value="${params.sdate}" readonly>
-                <span class="add-on"><i class="icon-th"></i></span>
-            </div>
-            ~
-            <div class="controls input-append date form_datetime" data-date-format="yyyy/mm/dd" data-link-field="dtp_input">
-                <input class="input-small" type="text" id="edate" name="edate" value="${params.edate}" readonly>
                 <span class="add-on"><i class="icon-th"></i></span>
             </div>
             <input type="submit" name="qbtn" id="qbtn" class="btn btn-primary" value="查询" />
@@ -89,7 +85,6 @@
                     <th>日期</th>
                     <th>营业总额</th>
                     <th>实际业绩</th>
-                    <th>实际业绩奖金</th>
                     <th>总客流量</th>
                     <th>日目标</th>
                     <th>达成率</th>
@@ -103,10 +98,16 @@
                         <td nowrap>${row.日期}</td>
                         <td nowrap>${row.营业总额}</td>
                         <td nowrap>${row.实际业绩}</td>
-                        <td nowrap>${row.实际业绩奖金}</td>
                         <td nowrap>${row.总客流量}</td>
                         <td nowrap>${Math.round(row.日目标 * 10) / 10}</td>
-                        <td nowrap>${Math.round(row.实际业绩 / row.日目标 * 10000) / 100} %</td>
+                        <td nowrap>
+                            <g:if test="${row.日目标}">
+                                ${Math.round(row.实际业绩 / row.日目标 * 10000) / 100} %
+                            </g:if>
+                            <g:else>
+                                N/A
+                            </g:else> 
+                        </td>
                     </tr>
                 </g:each>
             </tbody>

@@ -776,7 +776,14 @@ class PosController {
 
     def r2_pos() {
         def data = []
-        if (params.qbtn && params.sdate && params.edate) {
+        if (params.qbtn && params.sdate) {
+            def y = params.sdate[0..3]
+            def m = params.sdate[-2..-1]
+            def sdate = "${y}/${m}/01"
+            Calendar calendar = Calendar.instance
+            calendar.set(y.toInteger(), m.toInteger() - 1, 1)
+            def last = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            def edate = "${y}/${m}/${last}"
             def sql = _.sql
             def ms = Iwill.myStore(request, sql) 
             def s = """
@@ -792,11 +799,11 @@ class PosController {
                 DECLARE @dates CHAR(8) = CONVERT(CHAR,  CONVERT(DATETIME, @p_dates), 112) -- 日期
                 DECLARE @datee CHAR(8) = CONVERT(CHAR,  CONVERT(DATETIME, @p_datee), 112) -- 日期
                 ---充值----
-                select  SUBSTRING(GI_DATE,1,6)  as GI_DATE,GI_BILL_SNO as S_NO, SUM(GI_AMT) as 充值
+                select  SUBSTRING(GI_DATE,1,8)  as GI_DATE,GI_BILL_SNO as S_NO, SUM(GI_AMT) as 充值
                 into #充值
                 from GIFT_LIFE  where GI_TYPE ='ADD'   and GI_BILL_SNO<>'0000000' and REMARK1='' 
                 and GI_DATE>=@dates and GI_DATE<=@datee  and GI_BILL_SNO in (@store)
-                group by GI_BILL_SNO,SUBSTRING(GI_DATE,1,6) 
+                group by GI_BILL_SNO,SUBSTRING(GI_DATE,1,8) 
 
                 SELECT  SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
@@ -906,7 +913,7 @@ class PosController {
             
             """
             def total = [门店代码: '', 门店名称: '', 日期: ' 合计:', 营业总额: 0, 实际业绩: 0, 实际业绩奖金: 0, 总客流量: 0, 日目标: 0]
-            sql.eachRow(s, [params.sdate, params.edate, ms.s_no.toString()]) {
+            sql.eachRow(s, [sdate.toString(), edate.toString(), ms.s_no.toString()]) {
                 data << it.toRowResult()
                 total.营业总额 += it.营业总额
                 total.实际业绩 += it.实际业绩
