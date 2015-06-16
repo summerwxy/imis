@@ -2,16 +2,21 @@ package imis
 
 import iwill.*
 import grails.converters.*
+import java.io.File
 
 class TestController {
 
     def index() { 
-        // TODO: 有副作用的 method ?
-   //     def job = new Job()
-//        job.getAndSaveWeather()
-
         redirect(action: "page1")
     }
+
+    def log() {
+        def job = new Job()
+        render job.get22DataLog()
+    }
+
+
+
 
     // Welcome to Grails
     def welcome() {
@@ -189,6 +194,32 @@ class TestController {
         println '123'
         render "123"
     }
+
+
+    def exchange() {
+        if (params.act == '验证') {
+            def sql = _.sql
+            def s = """
+                select * from GIFT_TOKEN where vid = ?
+            """
+            def row = sql.firstRow(s, [params.code])
+            if (row) {            
+                flash.code = params.code
+                flash.step = 2
+            } else {
+                flash.msg = '无效的验证码！'
+            }
+            redirect(action: 'exchange')
+        } else if (params.act == '兑换') {
+            def sql = _.sql
+            def s = "update GIFT_TOKEN set vid = '' where vid = ?"
+            sql.execute(s, [params.code])
+            flash.step = 3
+            redirect(action: 'exchange')
+        }
+
+    }
+
 }
 
 

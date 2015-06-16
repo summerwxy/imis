@@ -6,6 +6,59 @@ import java.net.*
 
 class Job {
 
+    public String get22DataLog() {
+        def realtimePath = "\\\\192.168.0.22\\data\\upload\\all\\realtime"
+        def billPath = "\\\\192.168.0.22\\data\\upload\\all\\BILL"
+
+        def realtime = _getFiles(realtimePath)
+        def bill = _getFiles(billPath)
+
+        def d = new Date().getTime()
+
+        def foo = _parseData(realtime, d)
+        def bar = _parseData(bill, d)
+
+        // save to DB
+        def log = new Iwill22DataLog(foo)
+        log.folder = 'realtime'
+        log.save()
+
+        log = new Iwill22DataLog(bar)
+        log.folder = 'bill'
+        log.save()
+        
+        return foo.toString() + '-----------' + bar.toString() 
+    }
+
+    def _parseData(data, d) {
+        def result = [:]
+        def total = 0
+        def first = 99999999999999999999
+        data.each {
+            first = (first < it) ? first : it
+            total = total + d - it
+        }
+        total = total / 1000
+        result.total = total
+        result.count = data.size()
+        first = d - first
+        result.secs = (result.count == 0) ? 0 : first / 1000
+        result.avg = (result.count == 0) ? 0 : total / result.count
+        return result
+    }
+
+    def _getFiles(path) {
+        def result = []
+        new File(path).eachFile { file ->
+            if (file.isFile()) {
+                result << file.lastModified()
+            }
+        }
+        return result 
+    }
+
+
+
     public void getAndSaveBaiduWeather() {
         def area = [
             '%E6%97%A0%E9%94%A1', // 无锡 

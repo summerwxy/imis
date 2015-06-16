@@ -920,7 +920,16 @@ class PosController {
                 total.实际业绩奖金 += it.实际业绩奖金
                 total.总客流量 += it.总客流量
                 total.日目标 += it.日目标
-            } 
+            }
+            
+            // TODO: total 日目标 改一下
+            s = 'select month_target from iwill_store_target where s_no = ? and months = ?'
+            def mt = 1
+            def row = sql.firstRow(s, [ms.s_no.toString(), y+m])
+            if (row) {
+                mt = row.month_target
+            }
+            total.日目标 = mt 
             data << total
         }
         [data: data]
