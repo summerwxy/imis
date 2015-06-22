@@ -1,5 +1,6 @@
 package imis
 import iwill.*
+import grails.util.Environment
 
 
 class Log22DataJob {
@@ -8,7 +9,9 @@ class Log22DataJob {
     }
 
     def execute() {
-        def job = new Job()
-        job.get22DataLog()
+        if (Environment.current == Environment.PRODUCTION) {
+            def job = new Job()
+            job.get22DataLog()
+        }
     }
 }

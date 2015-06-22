@@ -7,6 +7,7 @@ class Iwill22DataLog {
     double count
     double secs
     double avg
+    Date work
 
     // system field
     Date dateCreated

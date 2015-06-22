@@ -3,6 +3,7 @@ package iwill
 import groovy.json.JsonSlurper
 import imis.*
 import java.net.*
+import grails.util.Environment
 
 class Job {
 
@@ -19,13 +20,15 @@ class Job {
         def bar = _parseData(bill, d)
 
         // save to DB
-        def log = new Iwill22DataLog(foo)
-        log.folder = 'realtime'
-        log.save()
+        if (Environment.current == Environment.PRODUCTION) {
+            def log = new Iwill22DataLog(foo)
+            log.folder = 'realtime'
+            log.save()
 
-        log = new Iwill22DataLog(bar)
-        log.folder = 'bill'
-        log.save()
+            log = new Iwill22DataLog(bar)
+            log.folder = 'bill'
+            log.save()
+        }
         
         return foo.toString() + '-----------' + bar.toString() 
     }
@@ -34,24 +37,31 @@ class Job {
         def result = [:]
         def total = 0
         def first = 99999999999999999999
-        data.each {
+        data.files.each {
             first = (first < it) ? first : it
             total = total + d - it
         }
         total = total / 1000
         result.total = total
-        result.count = data.size()
+        result.count = data.files.size()
         first = d - first
         result.secs = (result.count == 0) ? 0 : first / 1000
         result.avg = (result.count == 0) ? 0 : total / result.count
+        result.work = data.work
         return result
     }
 
     def _getFiles(path) {
-        def result = []
+        def result = [:]
+        result.files = []
+        result.work = ''
         new File(path).eachFile { file ->
             if (file.isFile()) {
-                result << file.lastModified()
+                result.files << file.lastModified()
+            } else if (file.getName() == 'work') {
+                def cal = Calendar.getInstance()
+                cal.setTimeInMillis(file.lastModified())
+                result.work = cal.getTime()
             }
         }
         return result 

@@ -9,6 +9,7 @@
     "tests"
   ],
   "dependencies": {
+    "startbootstrap-freelancer": "IronSummitMedia/startbootstrap-freelancer",
     "bootstrap-wysiwyg": null,
     "jquery-legacy": "jquery#1.10",
     "nvd3": null,

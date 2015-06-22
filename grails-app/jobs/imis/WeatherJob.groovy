@@ -1,6 +1,8 @@
 package imis
 
 import iwill.*
+import grails.util.Environment
+
 
 class WeatherJob {
     static triggers = {
@@ -10,8 +12,9 @@ class WeatherJob {
     }
 
     def execute() {
-        // execute job
-        def job = new Job()
-        job.getAndSaveBaiduWeather()
+        if (Environment.current == Environment.PRODUCTION) {
+            def job = new Job()
+            job.getAndSaveBaiduWeather()
+        }
     }
 }
