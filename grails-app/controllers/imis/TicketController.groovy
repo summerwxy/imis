@@ -2,7 +2,7 @@ package imis
 
 import iwill.*
 
-class TicketController {
+class TicketController extends BaseController {
 
     def index() { }
 

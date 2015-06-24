@@ -2,7 +2,7 @@ package imis
 import iwill.*
 import grails.converters.*
 
-class MmController {
+class MmController extends BaseController {
 
     def index() { }
 

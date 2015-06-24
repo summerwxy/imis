@@ -4,7 +4,7 @@ import iwill.*
 import grails.converters.*
 import groovy.json.*
 
-class ApiController {
+class ApiController extends BaseController {
 
     def key = '122b359a-f6e2-4238-81b1-67fa5c8f14fc'
 

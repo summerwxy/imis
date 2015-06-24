@@ -9,7 +9,7 @@ import jxl.write.WritableWorkbook
 import jxl.write.WritableCellFormat
 import iwill.*
 
-class SalesController {
+class SalesController extends BaseController {
 
     def index() {
         

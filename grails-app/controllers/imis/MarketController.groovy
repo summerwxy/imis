@@ -2,7 +2,7 @@ package imis
 
 import grails.converters.*
 
-class MarketController {
+class MarketController extends BaseController {
 
     def index() { }
 

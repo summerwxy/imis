@@ -4,15 +4,17 @@ import iwill.*
 import grails.converters.*
 import java.io.File
 
-class TestController {
+class TestController extends BaseController {
 
     def index() { 
         redirect(action: "page1")
     }
 
-    def log() {
+    def test() {
         def job = new Job()
-        render job.get22DataLog()
+        job.disableRandomIndex()
+        job.deleteRandomIndex()
+        render "hello"
     }
 
 

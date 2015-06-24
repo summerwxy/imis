@@ -4,7 +4,7 @@ import me.chanjar.weixin.common.util.*
 import me.chanjar.weixin.common.api.*
 import iwill.*
 
-class WechatController {
+class WechatController extends BaseController {
 
     def wx
 

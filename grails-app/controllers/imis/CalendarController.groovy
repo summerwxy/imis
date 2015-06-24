@@ -3,7 +3,7 @@ package imis
 import iwill.*
 import grails.converters.*
 
-class CalendarController {
+class CalendarController extends BaseController {
 
     // 不可随便改名字跟顺序, 会影响旧资料
     def rooms = ['大会议室', '厂长办公室']     

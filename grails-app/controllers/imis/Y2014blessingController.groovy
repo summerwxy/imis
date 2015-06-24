@@ -1,6 +1,6 @@
 package imis
 
-class Y2014blessingController {
+class Y2014blessingController extends BaseController {
 
     def index() {
         def lights = Y2014blessing.list(sort: 'id', order: 'desc')

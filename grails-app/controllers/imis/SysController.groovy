@@ -1,6 +1,6 @@
 package imis
 
-class SysController {
+class SysController extends BaseController {
 
     def index() { 
         render "Hello, World!"

@@ -2,7 +2,7 @@ package imis
 
 import iwill.*
 
-class HrController {
+class HrController extends BaseController {
 
     def index() { }
 

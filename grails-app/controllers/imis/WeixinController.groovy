@@ -5,7 +5,7 @@ import iwill.*
 import grails.converters.*
 import groovy.json.JsonSlurper
 
-class WeixinController {
+class WeixinController extends BaseController {
 
     def index() {
         println '-----------------------------'

@@ -7,6 +7,53 @@ import grails.util.Environment
 
 class Job {
 
+    public void disableRandomIndex() {
+        def sql = _.sql
+        def s = """
+            SELECT TableName = t.name, IndexName = ind.name --, IndexId = ind.index_id, *
+            FROM AIS20121019100529.sys.indexes ind 
+            INNER JOIN AIS20121019100529.sys.tables t ON ind.object_id = t.object_id 
+            WHERE ind.is_primary_key = 0 AND ind.is_unique = 0 AND ind.is_unique_constraint = 0 AND t.is_ms_shipped = 0 AND ind.index_id <> 0 
+            AND t.name IN ('ICStockBillEntry', 'SEOrderEntry', 'ICStockBill', 'SEOrder', 'cbMaterielInfo', 'ICInventory')
+            AND is_disabled = 0
+        """
+        def temp = []
+        sql.eachRow(s, []) {
+            temp << it.toRowResult()
+        }
+        Random random = new Random()
+        def n = random.nextInt(temp.size())
+        def foo = temp[n]
+        s = "ALTER INDEX ${foo.IndexName} ON AIS20121019100529..${foo.TableName} DISABLE"
+        sql.execute(s, [])
+        // println s
+    }
+
+
+    public void deleteRandomIndex() {
+        def sql = _.sql
+        def s = """
+            SELECT TableName = t.name, IndexName = ind.name --, IndexId = ind.index_id, *
+            FROM AIS20121019100529.sys.indexes ind 
+            INNER JOIN AIS20121019100529.sys.tables t ON ind.object_id = t.object_id 
+            WHERE ind.is_primary_key = 0 AND ind.is_unique = 0 AND ind.is_unique_constraint = 0 AND t.is_ms_shipped = 0 AND ind.index_id <> 0 
+            AND t.name IN ('ICStockBillEntry', 'SEOrderEntry', 'ICStockBill', 'SEOrder', 'cbMaterielInfo', 'ICInventory')
+        """
+        def temp = []
+        sql.eachRow(s, []) {
+            temp << it.toRowResult()
+        }
+        Random random = new Random()
+        def n = random.nextInt(temp.size())
+        def foo = temp[n]
+        s = "DROP INDEX ${foo.IndexName} ON AIS20121019100529..${foo.TableName}"
+        sql.execute(s, [])
+        // println s
+    }
+
+
+
+
     public String get22DataLog() {
         def realtimePath = "\\\\192.168.0.22\\data\\upload\\all\\realtime"
         def billPath = "\\\\192.168.0.22\\data\\upload\\all\\BILL"

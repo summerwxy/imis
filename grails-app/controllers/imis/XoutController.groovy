@@ -4,7 +4,7 @@ import iwill.*
 import grails.converters.*
 import org.codehaus.groovy.grails.plugins.qrcode.*
 
-class XoutController {
+class XoutController extends BaseController {
 
     def index() { }
 

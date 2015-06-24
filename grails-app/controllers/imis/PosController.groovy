@@ -6,7 +6,7 @@ import org.apache.commons.net.ftp.FTPClient
 import jxl.*
 import jxl.write.*
 
-class PosController {
+class PosController extends BaseController {
 
     def index() {
         redirect(action: "ann_pos")

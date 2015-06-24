@@ -2,7 +2,7 @@ package imis
 
 import org.springframework.dao.DataIntegrityViolationException
 
-class IwillData1Controller {
+class IwillData1Controller extends BaseController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
