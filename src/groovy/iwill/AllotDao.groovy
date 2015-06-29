@@ -53,7 +53,7 @@ class AllotDao {
             LEFT JOIN S_STOR_H b ON a.S_NO = b.S_NO AND a.SST_NO = b.SST_NO
             LEFT JOIN PART c ON a.P_NO = c.P_NO
             LEFT JOIN DEPART d ON c.D_NO = d.D_NO
-            WHERE b.FLS_NO = 'CO' AND b.S_NO = ? AND b.SPK_DATE >= ? AND b.SPK_DATE <= ?
+            WHERE b.FLS_NO = 'CO' AND b.S_NO = ? AND b.SPK_DATE >= ? AND b.SPK_DATE <= ? AND NOT c.P_PRICE IS NULL
             ORDER BY b.SPK_DATE, a.P_NO
         """
         sql.eachRow(s, [sNo, sDate, eDate]) {
