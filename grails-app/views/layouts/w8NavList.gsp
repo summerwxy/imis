@@ -37,6 +37,12 @@
                 称重
             </g:link>
         </li>
+        <li>
+            <g:link controller="remind" action="list">
+                <i class="icon-double-angle-right"></i>
+                证件提醒
+            </g:link>
+        </li>
     </ul>
 </li>
 
