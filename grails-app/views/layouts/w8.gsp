@@ -38,6 +38,8 @@
 		<link rel="stylesheet" href="${resource(dir: 'bower_components/jquery-ui/themes/smoothness', file: 'jquery-ui.min.css')}" />
 		
 
+		<link rel="stylesheet" href="${resource(dir: 'bower_components/selectize/dist/css', file: 'selectize.bootstrap2.css')}" />
+
 		<!--basic scripts-->
         
         <!--[if lt IE 9]>
@@ -77,6 +79,9 @@
 
         <!-- my scripts -->
         <script src="${resource(dir: 'js', file: 'underscore-min.js')}"></script>
+        <script src="${resource(dir: 'bower_components/microplugin/src', file: 'microplugin.js')}"></script>
+        <script src="${resource(dir: 'bower_components/sifter', file: 'sifter.min.js')}"></script>
+        <script src="${resource(dir: 'bower_components/selectize/dist/js', file: 'selectize.min.js')}"></script>
 
         <style type="text/css" media="screen">
         <g:if env="development">

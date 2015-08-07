@@ -20,6 +20,18 @@
             </g:link>
         </li>
         <li>
+            <g:link controller="market" action="list_mooncake">
+                <i class="icon-double-angle-right"></i>
+                月饼快递
+            </g:link>
+        </li>
+        <li>
+            <g:link controller="qyZqlh" action="console">
+                <i class="icon-double-angle-right"></i>
+                微信订单
+            </g:link>
+        </li>
+        <li>
             <g:link controller="pos" action="f2">
                 <i class="icon-double-angle-right"></i>
                 门店营业模式设定
@@ -37,12 +49,7 @@
                 称重
             </g:link>
         </li>
-        <li>
-            <g:link controller="remind" action="list">
-                <i class="icon-double-angle-right"></i>
-                证件提醒
-            </g:link>
-        </li>
+
     </ul>
 </li>
 
@@ -197,6 +204,18 @@
                 门店业绩上传
             </g:link>
         </li>
+        <li>
+            <g:link controller="qyZqlh" action="syncWxcpUser">
+                <i class="icon-double-angle-right"></i>
+                同步企业号用户
+            </g:link>
+        </li>
+        <li>
+            <g:link controller="remind" action="list">
+                <i class="icon-double-angle-right"></i>
+                证件提醒
+            </g:link>
+        </li>        
     </ul>    
 </li>
 

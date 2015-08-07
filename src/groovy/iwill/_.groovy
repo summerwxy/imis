@@ -79,6 +79,16 @@ class _ {
         return date2String(cal.getTime(), format)
     }
 
+    static diffDays(date1, date2, format='yyyy/MM/dd') { // date1 - date2
+        if (!date1 || !date2) {
+            return 0
+        }
+        def date1Long = _.dateString2Long(date1, format)
+        def date2Long = _.dateString2Long(date2, format)
+        def foo = date1Long - date2Long
+        return foo / (1000*60*60*24)
+    }
+
     static today(format='yyyyMMdd') {
         return someday(Calendar.DATE, 0, format)
     }
@@ -187,5 +197,24 @@ class _ {
         return sb.toString()
     }
 
+
+    static wxOauth2Url(c, a, p=[]) {
+        def url = ''
+        if(GrailsUtil.getEnvironment() == "development") {
+            url = "http://test.dsiwill.com/imis/${c}/${a}"
+        } else if (GrailsUtil.getEnvironment() == "production") {
+            url = "http://api.dsiwill.com/imis/${c}/${a}"
+        } else {
+            throw new Exception()
+        }
+        if (p) {
+            def foo = []
+            p.each {
+                foo << it.key + '=' + it.value
+            }
+            url += '?' + foo.join('&')
+        }
+        return url
+    }
 }
 

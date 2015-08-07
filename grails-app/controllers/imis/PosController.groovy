@@ -907,7 +907,7 @@ class PosController extends BaseController {
                 into #tmp_Party2 
                 from #tmp_Party
 
-                select a.* ,day_target as 日目标,b.days  from  #tmp_Party2 a left join iwill_store_target b on a.门店代码=b.s_no and convert(char(6), a.日期)=b.months
+                select a.* , isnull(day_target, 0) as 日目标, isnull(b.days, 0) as days  from  #tmp_Party2 a left join iwill_store_target b on a.门店代码=b.s_no and convert(char(6), a.日期)=b.months
                 where 门店代码<>'8027010' 
                 order by 门店代码,日期
             

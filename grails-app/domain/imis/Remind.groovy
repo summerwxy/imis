@@ -14,6 +14,8 @@ class Remind {
     String man
     String tel
     String comment
+    long days
+
 
     static constraints = {
     }

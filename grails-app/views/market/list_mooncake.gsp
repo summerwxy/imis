@@ -33,53 +33,66 @@
     </style>
     <script type="text/javascript">
     $(function() {
-        $('.delbtn').click(function() {
-            if (!confirm("确认删除吗？")) {
-                return false; 
-            }       
+        var btns = $('.kdBtn');
+        btns.click(function() {
+            var i = btns.index(this);
+            var express_no = $('[name=express_no]:eq(' + i + ')').val();
+            var id = $('[name=id]:eq(' + i + ')').val();
+            $.ajax({
+                url: 'save_express_no',
+                type: 'post',
+                data: {express_no: express_no, id: id}, 
+                dataType: 'json'
+            }).done(function(json) {
+                alert('保存成功!');
+            }).fail(function(json) {
+                alert('AJAX FAIL!');    
+            });  
         });
     })
     </script>
 </head>
-<content tag="title">证件提醒</content>
+<content tag="title">月饼快递</content>
 <content tag="subtitle"></content>
 <body>
 
 <div class="row">
     <div class="span10 offset1">
-        <g:link action="add" class="btn btn-primary">新增</g:link>
         <table class="table table-condensed">
             <thead>
                 <tr>
-                    <th>序号</th>
-                    <th>证件名称</th>
-                    <th>证件类型</th>
-                    <th>证件有效期</th>
-                    <th>年检时间</th>
-                    <th>证件所属性质</th>
-                    <th>天数</th>
+                    <th>id</th>
+                    <th>收件人</th>
+                    <th>联系电话</th>
+                    <th>送货地址</th>
+                    <th>品名</th>
+                    <th>券号</th>
                     <th>状态</th>
+                    <th>快递单号</th>
+                    <th>功能</th>
                 </tr>
             </thead>
             <tbody id="data">
                 <g:each in="${list}" status="i" var="it">
                     <tr>
-                        <td><g:link action="edit" id="${it.id}">${it.id}</g:link></td> 
+                        <td>${it.id}</td> 
                         <td>${it.name}</td> 
-                        <td>${imis.RemindController.papers[it.type]}</td> 
-                        <td>${it.sdate} ~ ${it.edate}</td> 
-                        <td>${it.cdate}</td>
-                        <td>${imis.RemindController.owner[it.owner]}</td>
-                        <td>${it.days}</td>
-                        <td>${imis.RemindController.status[it.status]}</td> 
+                        <td>${it.phone}</td> 
+                        <td>${it.address}</td> 
+                        <td>${it.P_NAME}</td> 
+                        <td>${it.GT_NO}</td>
+                        <td>
+                            ${it.BACK_NUM == 0 ? '未扫码' : '已扫码'} 
+                        </td>
+                        <td><input type="text" name="express_no" value="${it.express_no}"></td>
+                        <td>
+                            <input type="hidden" name="id" value="${it.id}"/>
+                            <button class="btn btn-info kdBtn">快递</button>
+                        </td> 
                     </tr>
                 </g:each> 
             </tbody>
         </table>
-        <div class="pagination">
-            <g:paginate total="${total}" next="下一页" prev="上一页"/>
-        </div>
-
     </div>
 </div>
 

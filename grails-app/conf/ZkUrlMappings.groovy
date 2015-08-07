@@ -5,7 +5,7 @@ class ZkUrlMappings {
         , "/2014blessing/*", "/bootstrap/*"
         , "/bootstrap-colorpalette/*", "/bootstrap-datetimepicker/*" 
         , "/bower_components/*", "/dropzone/*"
-        , "/themes/*", "/BigWheel/*"
+        , "/themes/*", "/BigWheel/*", '/mooncake/*'
         ]
 
     static mappings = {
