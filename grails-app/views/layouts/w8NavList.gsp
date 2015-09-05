@@ -22,7 +22,13 @@
         <li>
             <g:link controller="market" action="list_mooncake">
                 <i class="icon-double-angle-right"></i>
-                月饼快递
+                月饼快递（网络推广版）
+            </g:link>
+        </li>
+        <li>
+            <g:link controller="market" action="list_mooncake2">
+                <i class="icon-double-angle-right"></i>
+                月饼快递（顺丰提货版）
             </g:link>
         </li>
         <li>

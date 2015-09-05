@@ -26,7 +26,7 @@
             </div>
         </div>
     </header>
-    <g:if test="${!einfo}">
+    <g:if test="${!express}">
         <!-- Contact Section -->
         <section id="contact">
             <div class="container">
@@ -68,6 +68,7 @@
                                     <p class="help-block text-danger"></p>
                                 </div>
                             </div>
+
                             <br>
                             <div id="success"></div>
                             <div class="row">
@@ -101,15 +102,25 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-8 col-lg-offset-2">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    <img src="/imis/images/logoSF.png" alt="">
+                                </td>
+                                <td style="text-align: right;">
+                                    <h5>快递单号：${express}</h5>
+                                </td>
+                            </tr>
+                        </table>
                         <table class="table table-striped">
                             <tr>
                                 <th>时间</th>
                                 <th>记录</th>
                             </tr>
-                            <g:each in="${einfo['data']}" status="i" var="it">
+                            <g:each in="${einfo['result']['list']}" status="i" var="it">
                                 <tr>
-                                    <td>${it.time}</td> 
-                                    <td>${it.context}</td<
+                                    <td>${it.datetime}</td> 
+                                    <td>${it.remark}</td<
                                 </tr>
                             </g:each>
                         </table>

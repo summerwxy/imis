@@ -9,6 +9,7 @@ class WechatController extends BaseController {
     def wx
 
     def index() {
+        println params
         if (!wx.wxService.checkSignature(params.timestamp, params.nonce, params.signature)) {
             println 'invalid request' //  not from weixin
             return
@@ -18,7 +19,6 @@ class WechatController extends BaseController {
             render params.echostr
             return
         }
-
         render wx.parse(request, params)
     }
 

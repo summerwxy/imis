@@ -4,17 +4,40 @@ import iwill.*
 import grails.converters.*
 import java.io.File
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+
+
+// import com.alipay.api.internal.util.*;
+
 class TestController extends BaseController {
 
     def index() { 
         redirect(action: "page1")
     }
 
+
+    def ALIPAY_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB"
+    def PRIVATE_KEY = "MIICXgIBAAKBgQDvsVO9ahWOfz50FYKKjDJwdicBITjX9Z8T/TE/8Kxw6ucyRb8S2040XYgNBd9stuNRsTUEhVwmj2EGktfdEzXwmVEvDIlrqFcbc7mEPRfBQJoM6N9r9BmntZWttUXtK8keoAnbxWT9ESVgeelUBtN9eK6iLipJEvV+7FGTmqpCAQIDAQABAoGAYDqZ+vaHFwFgymwET6k/asUUnbB/yLv0lKrWxevS3zZ/gUBdGK3w9LcEMu5Dp7q5AogZV+pOd7CibGgxv7DBu0JwwVe5it2MgwaGB0Hre1+K9TlvNlGvcTKQwHrtMQJQglJpbg2sEfe28zHiQpcIY7LqsYfTM7DMK2XV8EoS4tECQQD88QDNujepJGRD2PtkCNON91YiJTBbdJyjOpUwhDj5lw2RXXIRrnZ/3XHwGhVAOtALdHoaCIT3R41wbCVEjYV9AkEA8pdPx3mQzupSC7OG2pGnpKkR3NHM+sCW4PLUw3pbKeuT9mFzQXIDGdbQeZXprSS9d9QsqoITdtHQp9ofsMXF1QJBAIOQN4LKYTkxHJXNvrSBgshM5hhMj6KCPRcJ2Z+qppfr4brCiBp6TFilriXc60DFVoEezIPN+ptENGVNWvUVR2ECQQC+fMwbYTyxDVPxdj3tALR32n55O5DOUU3oQyWIfVp6V05vB+Rdvm3q6z/2SR4dZB0Wq9eK5+rqwSQruV5rC1ElAkEAo74V42XjSKgE54Jv6gcH9ZIFs3e+VymJe2Yw8mI8Vsvauy1Qlsg8/ioH30Oid16MmdzTDlvpFeCGSup7tCZjHw=="
+    def SIGN_CHARSET = 'GBK'
+    def CHARSET = "GBK"
+
     def test() {
-        def job = new Job()
-        job.disableRandomIndex()
-        job.deleteRandomIndex()
-        render "hello"
+        Map<String, String> aliparams = _.getRequestParams(request);
+        if (!AlipaySignature.rsaCheckV2(aliparams, ALIPAY_PUBLIC_KEY, SIGN_CHARSET)) {
+            println 'oh no...invalid request'
+        }
+    
+        def msg = "biz_content=${aliparams['biz_content']}&charset=${aliparams['charset']}&service=${aliparams['service']}&sign_type=${aliparams['sign_type']}"
+        msg = msg.bytes.encodeBase64().toString()
+        println msg
+        msg = AlipaySignature.encryptAndSign(msg, ALIPAY_PUBLIC_KEY, PRIVATE_KEY, CHARSET, false, true);
+        println '-----------------'
+        println msg
+        println '========================'
+
+        render msg
+
     }
 
 

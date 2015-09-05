@@ -12,6 +12,11 @@ import grails.util.GrailsUtil
 import java.util.UUID
 import groovy.io.FileType
 
+import java.util.HashMap
+import java.util.Map
+import java.util.Set
+import javax.servlet.http.HttpServletRequest
+
 class _ {
 
     static getSql() {
@@ -216,5 +221,55 @@ class _ {
         }
         return url
     }
+
+    public static Map<String, String> getRequestParams(HttpServletRequest request){
+        
+        Map<String, String> params = new HashMap<String, String>();
+        if(null != request){
+            Set<String> paramsKey = request.getParameterMap().keySet();
+            for(String key : paramsKey){
+                params.put(key, request.getParameter(key));
+            }
+        }
+        return params;
+    }
+
+    static dev() {
+        boolean result = false
+        if(GrailsUtil.getEnvironment() == "development") {
+            result = true
+        } else if (GrailsUtil.getEnvironment() == "production") {
+            result = false
+        } else {
+            throw new Exception()
+        }
+        return result
+    }
+
+    static getWxMpAppId() {
+        return dev() ? 'wx2f1ff066712e735e' : "wx52ea5a89a99b5be2"
+    }
+
+    static getWxMpAppSecret() {
+        return dev() ? '2a57231f2dd9342d7f6040398becd55e' : "b84b9bb08bd8f064fab58420c7d304bb" 
+    }
+
+    static getWxMpToken() {
+        return dev() ? 'abcde12345' : 'abcde12345'
+    }
+
+    static getWxMpAesKey() {
+        return dev() ? '' : "soyNMqgiSlkbxnMGH3Tz9SW9pJwpeYNKYZyoTWrzx48"
+    }
+
+    static getWxMpMchId() {
+        return dev() ? '1220083801' : "1220083801"
+    }
+
+    static getWxMpMchKey() {
+        return dev() ? 'b84b9bb08bd8f064fab58420c7d304bb' : "b84b9bb08bd8f064fab58420c7d304bb"
+    }
+
+
 }
 

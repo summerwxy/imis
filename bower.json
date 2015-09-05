@@ -11,6 +11,7 @@
   "dependencies": {
     "startbootstrap-freelancer": "IronSummitMedia/startbootstrap-freelancer",
     "bootstrap-wysiwyg": null,
+    "blockui": null, 
     "jquery-legacy": "jquery#1.10",
     "nvd3": null,
     "jquery-ui": null,

@@ -68,10 +68,18 @@ grails.project.dependency.resolution = {
         //runtime 'com.cloudhopper.proxool:proxool:0.9.1'
         //runtime 'org.xerial:sqlite-jdbc:3.7.15-M1'
         runtime 'net.sourceforge.jexcelapi:jxl:2.6.12'
-        runtime 'me.chanjar:weixin-java-mp:1.1.5'
-        runtime 'me.chanjar:weixin-java-cp:1.1.8'
+        runtime 'me.chanjar:weixin-java-mp:1.2.0'
+        runtime 'me.chanjar:weixin-java-cp:1.2.0'
         runtime "org.slf4j:slf4j-api:1.7.10"
         runtime "commons-io:commons-io:2.4"
+
+        // weixin popular
+        runtime 'com.alibaba:fastjson:1.2.0'
+        runtime 'org.apache.httpcomponents:httpclient:4.3.5'
+        runtime 'org.apache.httpcomponents:httpmime:4.3.4'
+        runtime 'com.sun.xml.bind:jaxb-impl:2.1.13'
+
+
     }
 
     plugins {

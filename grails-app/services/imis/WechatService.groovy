@@ -7,6 +7,7 @@ import me.chanjar.weixin.common.util.*
 import me.chanjar.weixin.mp.bean.*
 import me.chanjar.weixin.common.session.*
 import me.chanjar.weixin.common.api.*
+import iwill.*
 
 @Transactional
 class WechatService {
@@ -159,10 +160,16 @@ class WechatService {
 
 
 
-    private __appId = "wxb3235f51f36fe4c8"
-    private __secret = "7a879230c9c931338df16675a58df2fc"
-    private __token = "this_is_a_secret_word"
-    private __aesKey = ""
+    private __appId = _.wxMpAppId
+    //private __appId = "wx52ea5a89a99b5be2"
+    //private __appId = "wx2f1ff066712e735e"
+    private __secret = _.wxMpAppSecret
+    //private __secret = "b84b9bb08bd8f064fab58420c7d304bb"
+    //private __secret = "2a57231f2dd9342d7f6040398becd55e" 
+    private __token = _.wxMpToken
+    //private __token = "abcde12345"
+    private __aesKey = _.wxMpAesKey
+    //private __aesKey = "soyNMqgiSlkbxnMGH3Tz9SW9pJwpeYNKYZyoTWrzx48"
     private __wxConfig
     def getWxConfig() {
         if (!__wxConfig) {

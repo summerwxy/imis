@@ -82,7 +82,7 @@
                         <td>${it.P_NAME}</td> 
                         <td>${it.GT_NO}</td>
                         <td>
-                            ${it.BACK_NUM == 0 ? '未扫码' : '已扫码'} 
+                            ${it.BACK_NUM == 0 ? '未提货' : '已提货'} 
                         </td>
                         <td><input type="text" name="express_no" value="${it.express_no}"></td>
                         <td>
