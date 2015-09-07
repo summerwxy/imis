@@ -151,16 +151,19 @@ class MarketController extends BaseController {
             }     
             if (row.express_no) {
                 express = row.express_no
-                // 有快递单号 
-                def foo = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}".toURL().text
-                foo = new String(foo.getBytes(), "UTF-8") // 处理编码
-                // einfo = slurper.parseText(foo)
-                express = foo
+                // 有快递单号
+                einfo = _.parseJson("http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}")
 
                 /*
+                // DELETE THIS
                 def slurper = new JsonSlurper()
-                def u = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}"
-                einfo = slurper.parse(new URL(u), 'utf-8')
+                if (_.dev()) {
+                    def foo = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}".toURL().text
+                    einfo = slurper.parseText(foo)
+                } else {            
+                    def u = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}"
+                    einfo = slurper.parse(new URL(u), 'utf-8')
+                }
                 */
             }
 
@@ -286,11 +289,15 @@ class MarketController extends BaseController {
             }
             // express
             if (h.express_no) {
+                /*
+                // DELETE THIS
                 def einfo = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${h.express_no}".toURL().text
                 einfo = new String(einfo.getBytes(), "UTF-8") // 处理编码
 
                 def slurper = new JsonSlurper()
                 def foo = slurper.parseText(einfo)      
+                */
+                def foo = _.parseJson("http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${h.express_no}")
                 if (foo.error_code == 0) {
                     express = foo.result.list
                 }

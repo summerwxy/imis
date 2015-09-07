@@ -11,6 +11,7 @@ import java.text.*
 import grails.util.GrailsUtil
 import java.util.UUID
 import groovy.io.FileType
+import groovy.json.*
 
 import java.util.HashMap
 import java.util.Map
@@ -270,6 +271,17 @@ class _ {
         return dev() ? 'b84b9bb08bd8f064fab58420c7d304bb' : "b84b9bb08bd8f064fab58420c7d304bb"
     }
 
+    // 因為卡再 Grails 預設 groovy 版本問題, 開發環境與正式環境處理方式不一樣
+    static parseJson(url) {
+        def result = null
+        def slurper = new JsonSlurper()
+        if (_.dev()) {
+            result = slurper.parseText(url.toURL().text)
+        } else {            
+            result = slurper.parse(new URL(url), 'utf-8')
+        }    
+        return result
+    }
 
 }
 

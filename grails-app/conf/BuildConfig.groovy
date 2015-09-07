@@ -79,7 +79,8 @@ grails.project.dependency.resolution = {
         runtime 'org.apache.httpcomponents:httpmime:4.3.4'
         runtime 'com.sun.xml.bind:jaxb-impl:2.1.13'
 
-
+        // change default groovy version
+        compile 'org.codehaus.groovy:groovy-all:2.2.2'
     }
 
     plugins {
