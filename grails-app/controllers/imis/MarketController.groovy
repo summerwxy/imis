@@ -18,6 +18,13 @@ import weixin.popular.util.ExpireSet;
 import weixin.popular.util.SignatureUtil;
 import weixin.popular.util.XMLConverUtil;
 
+import jxl.Workbook
+import jxl.CellType
+import jxl.write.Label
+import jxl.write.Number
+import jxl.write.WritableSheet
+import jxl.write.WritableWorkbook
+import jxl.write.WritableCellFormat
 
 class MarketController extends BaseController {
 
@@ -62,6 +69,7 @@ class MarketController extends BaseController {
             from mooncake_express a
             left join GIFT_TOKEN b on a.vid = b.vid
             left join PART c ON b.GI_P_NO = c.P_NO
+            where ${params.show ? 'not' : ''} express_no = ''
             order by id desc
         """
         sql.eachRow(s, []) { 
@@ -84,6 +92,7 @@ class MarketController extends BaseController {
             left join mooncake2expressh b on a.h_id = b.id
             left join GIFT_TOKEN c on a.vid = c.vid
             left join PART d on c.GI_P_NO = d.P_NO
+            where c.BACK_SNO in ('', '802B002')
             order by b.id, d.P_NAME
 
             select t.id, t.name, t.phone, t.lv1, t.lv2, t.lv3, t.address, t.express_no, t.fee, t.kg, t.status
@@ -91,6 +100,7 @@ class MarketController extends BaseController {
             , STUFF(ISNULL((SELECT ', ' + x.GT_NO + ' ' + CASE WHEN x.BACK_NUM > 0 THEN '已提货' ELSE '未提货' END FROM #aa x WHERE x.id = t.id GROUP BY x.GT_NO, x.BACK_NUM FOR XML PATH (''), TYPE).value('.','VARCHAR(max)'), ''), 1, 2, '') AS tickets
             from #aa t
             where status <> ''
+            and ${params.show ? 'not' : ''} express_no = ''
             group by t.id, t.name, t.phone, t.lv1, t.lv2, t.lv3, t.address, t.express_no, t.fee, t.kg, t.status
             order by t.id desc
         """
@@ -100,6 +110,7 @@ class MarketController extends BaseController {
             foo.tickets = _.bufferedReader2String(it.tickets.characterStream)
             foo.fee = it.fee.toInteger()
             foo.kg = Math.round(it.kg * 1000) / 1000
+            foo.ticketsList = foo.tickets.split(', ')
             list << foo
         }
         [list: list]    
@@ -218,6 +229,7 @@ class MarketController extends BaseController {
     // TODO: 檢查有沒有被掃過券了
     // 付费快递版本 
     def mooncake2() {
+        session.openid = 'wxy'
         // ===== weixin oauth2 =====
         if (params.code) {
             def token = wx.wxService.oauth2getAccessToken(params.code)
@@ -253,7 +265,7 @@ class MarketController extends BaseController {
                 return
             } else if (!row.h_id) {
                 s = """
-                    insert mooncake2expressh values(0, '', GETDATE(), '', GETDATE(), '', '', '', 0, 0, '', '', '')
+                    insert mooncake2expressh(version, address, date_created, express_no, last_updated, name, phone, status, fee, kg, lv1, lv2, lv3, lat, lng) values(0, '', GETDATE(), '', GETDATE(), '', '', '', 0, 0, '', '', '', 0, 0)
                     select * from mooncake2expressh where id = @@IDENTITY
                 """
                 h = sql.firstRow(s, [])
@@ -289,21 +301,38 @@ class MarketController extends BaseController {
             }
             // express
             if (h.express_no) {
-                /*
-                // DELETE THIS
-                def einfo = "http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${h.express_no}".toURL().text
-                einfo = new String(einfo.getBytes(), "UTF-8") // 处理编码
-
-                def slurper = new JsonSlurper()
-                def foo = slurper.parseText(einfo)      
-                */
                 def foo = _.parseJson("http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${h.express_no}")
                 if (foo.error_code == 0) {
                     express = foo.result.list
                 }
             }
         } else if (params.act == 'pay') {
+            println params.hid
+            println Mooncake2ExpressH
+            println Mooncake2ExpressH.get(params.hid)
+
             h = Mooncake2ExpressH.get(params.hid)
+            if (h.status == 'unpaid') {
+                def h2del = h
+                h = new Mooncake2ExpressH()
+                h.name = ''
+                h.phone = ''
+                h.address = ''
+                h.lv1 = ''
+                h.lv2 = ''
+                h.lv3 = ''
+                h.kg = 0
+                h.fee = 0
+                h.expressNo = ''
+                h.status = ''
+                h.save()
+                Mooncake2ExpressD.findAllByH(h2del).each {
+                    it.h = h
+                    it.save()
+                }
+                h2del.status = 'delete'
+                h2del.save()
+            }
             h.name = params.name
             h.phone = params.phone
             h.lv1 = params.lv1
@@ -316,11 +345,8 @@ class MarketController extends BaseController {
             h.save(flush: true)
 
             def appid = _.wxMpAppId
-            //def appid = "wx52ea5a89a99b5be2"
             def mchid = _.wxMpMchId
-            //def mchid = "1220083801"
             def key = _.wxMpMchKey
-            //def key = "b84b9bb08bd8f064fab58420c7d304bb"
 
             Unifiedorder unifiedorder = new Unifiedorder();
             unifiedorder.setAppid(appid); 
@@ -328,7 +354,7 @@ class MarketController extends BaseController {
             unifiedorder.setNonce_str(UUID.randomUUID().toString().toString().replace("-", ""));
             unifiedorder.setOpenid(session.openid);
             unifiedorder.setBody("爱维尔中秋礼盒(" + params.kg + ")");
-            unifiedorder.setOut_trade_no("IWILL_SF_" + params.hid.padLeft(10, "0"));
+            unifiedorder.setOut_trade_no("IWILL_SF_" + h.id.toString().padLeft(10, "0"));
             def tf = params.fee.toInteger() * 100
             if (_.dev()) { // 开发时除 100
                 tf = params.fee.toInteger()
@@ -343,11 +369,6 @@ class MarketController extends BaseController {
             unifiedorder.setTrade_type("JSAPI");//JSAPI，NATIVE，APP，WAP
             // 统一下单，生成预支付订单
             UnifiedorderResult unifiedorderResult = PayMchAPI.payUnifiedorder(unifiedorder,key);
-
-            // TODO: 付款失败不能再付款, 要改规则
-            println unifiedorderResult.return_code
-            println unifiedorderResult.return_msg
-            println unifiedorderResult.prepay_id
 
             flash.json = PayUtil.generateMchPayJsRequestJson(unifiedorderResult.getPrepay_id(), appid, key);
             redirect(action: 'mooncake2_pay', params: ['showwxpaytitle': '1'])
@@ -478,6 +499,108 @@ class MarketController extends BaseController {
         println json
         //将json 传到jsp 页面
         //request.setAttribute("json", json);    
+    }
+
+    def express_map() {
+        def data = []
+        def sql = _.sql
+        def s = """
+            select 'a' + CAST(id as varchar) as id, address, phone, name, 1 as box, last_updated, lat, lng from mooncake_express
+            union all
+            select 'b' + CAST(b.id as varchar), lv1 + lv2 + lv3 + address, phone, name, COUNT(*), b.last_updated, lat, lng
+            from mooncake2expressd a left join mooncake2expressh b on a.h_id = b.id 
+            where status = 'paid'
+            group by b.id, lv1, lv2, lv3, address, phone, name, b.last_updated, lat, lng
+            order by last_updated
+        """
+        sql.eachRow(s, []) {
+            data << it.toRowResult()
+        }   
+
+        [data: data as JSON]
+    }
+
+    def express_map_lng_lat() {
+        def result = [:]
+        def sql = _.sql
+        if (params.id?.indexOf('a') == 0) {
+            def id = params.id - 'a'
+            def s = "update mooncake_express set lng = ?, lat = ? where id = ?"
+            sql.executeUpdate(s, [params.lng, params.lat, id])
+        } else if (params.id?.indexOf('b') == 0) {
+            def id = params.id - 'b'
+            def s = "update mooncake2expressh set lng = ?, lat = ? where id = ?"
+            sql.executeUpdate(s, [params.lng, params.lat, id])
+        }
+        render (contentType: 'text/json') {result}
+    }
+
+    def express_update() {
+    
+    }
+
+    def express_update_upload() {
+        def f = request.getFile('file')
+        if (f.empty) { // 依照 ui 不应该发生
+            render "empty file" 
+            return
+        }
+        // check path and save file
+        def fn = _.uuid() + '.xls'
+        _.save2UploadDir(f, 'express', fn)
+        render fn 
+    }
+
+    def express_update_read_xls() {
+        def data = [:]
+        // data in excel
+        def f = _.getUploadFile('express', params.filename)
+        def book = Workbook.getWorkbook(f);
+        def sheet = book.getSheet(0)
+        for (int i = 1; i < sheet.getRows(); i++) {
+            def cells = sheet.getRow(i)
+            if (cells.length != 49) {
+                continue // 顺丰 excel 固定 49
+            }
+            def foo = [:]
+            foo['ono'] = cells[0].getContents()
+            foo['eno'] = cells[1].getContents()
+            foo['man'] = cells[5].getContents()
+            foo['tel'] = cells[4].getContents()
+            foo['address'] = cells[3].getContents()
+            foo['address'] = foo.address.length() > 6 ? foo.address[0..5] : foo.address
+            def status = '!!??'
+            if (!foo.ono) {
+                status = '不更新：无订单号'
+            }
+            if (foo.ono && foo.ono[0] == 'a') {
+                def mc = MooncakeExpress.get(foo.ono - 'a')
+                if (mc.expressNo && mc.expressNo == foo.eno) {
+                    status = '不更新：单号相同'
+                } else if (mc.expressNo) {
+                    status = '不更新：原运单' + mc.expressNo
+                } else {
+                    mc.expressNo = foo.eno
+                    mc.save()
+                    status = '已更新'
+                }
+            }
+            if (foo.ono && foo.ono[0] == 'b') {
+                def mc = Mooncake2ExpressH.get(foo.ono - 'b')
+                if (mc.expressNo && mc.expressNo == foo.eno) {
+                    status = '不更新：单号相同'
+                } else if (mc.expressNo) {
+                    status = '不更新：原运单' + mc.expressNo
+                } else {
+                    mc.expressNo = foo.eno
+                    mc.save()
+                    status = '已更新'
+                }
+            }
+            foo['status'] = status
+            data[i] = foo 
+        }        
+        render (contentType: 'text/json') {data.values()}
     }
 
 

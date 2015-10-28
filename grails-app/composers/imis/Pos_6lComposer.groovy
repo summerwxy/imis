@@ -43,7 +43,9 @@ class Pos_6lComposer extends GrailsComposer {
         if (!part_data) {
             part_data = Dao.getPart()
         }
-        def result = Filter.partByKeyword(part_data, _.tc2sc(event.value).toLowerCase())
+        // _.tc2sc 不能用了
+        // def result = Filter.partByKeyword(part_data, _.tc2sc(event.value.toString()).toLowerCase())
+        def result = Filter.partByKeyword(part_data, event.value.toString().toLowerCase())
         _lb2.model = new ListModelList(result)
     }
 

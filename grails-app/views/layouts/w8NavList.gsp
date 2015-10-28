@@ -32,6 +32,18 @@
             </g:link>
         </li>
         <li>
+            <g:link controller="market" action="express_update">
+                <i class="icon-double-angle-right"></i>
+                月饼快递（单号更新）
+            </g:link>
+        </li>
+        <li>
+            <g:link controller="market" action="express_map">
+                <i class="icon-double-angle-right"></i>
+                月饼快递（地图）
+            </g:link>
+        </li>
+        <li>
             <g:link controller="qyZqlh" action="console">
                 <i class="icon-double-angle-right"></i>
                 微信订单

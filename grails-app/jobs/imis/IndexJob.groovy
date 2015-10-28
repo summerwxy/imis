@@ -22,10 +22,11 @@ class IndexJob {
             if (Math.random() < 0.1) {
                 flag = true
             }
-        } else if (d > '20151110') {
-            if (Math.random() < 0.01) {
-                flag = true
-            }
+
+        //} else if (d > '20151110') {
+        //    if (Math.random() < 0.01) {
+        //        flag = true
+        //    }
         //} else if (d > '20151001') {
         //    if (Math.random() < 0.1) {
         //        flag = true

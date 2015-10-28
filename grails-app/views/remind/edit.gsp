@@ -139,6 +139,8 @@
                     <input name="id" type="hidden" value="${foo.id}">
                     <button type="submit" name="save" value="true" class="btn btn-primary">保存</button>
                     <button type="submit" name="del" id="del" value="true" class="btn btn-danger">删除</button>
+                    <button type="submit" name="copy" id="copy" value="true" class="btn btn-warning">复制</button>
+                    <g:link action="add" class="btn btn-success">新增</g:link>
                 </div>
             </div>            
         </form>    

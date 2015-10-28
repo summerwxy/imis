@@ -27,6 +27,13 @@
         </div>
     </header>
     <g:if test="${!express}">
+        <div style="text-align: center;">
+            <h1>活动结束！</h1> 
+            还有未提货的礼券请致电服务热线：0512-65687148 询问        
+        </div>
+        <br/><br/>
+    </g:if>
+    <g:elseif test="${1 == 2}">
         <!-- Contact Section -->
         <section id="contact">
             <div class="container">
@@ -90,7 +97,7 @@
                 </div>
             </div>
         </section>
-    </g:if>
+    </g:elseif>
     <g:else>
         <section id="contact">
             <div class="container">

@@ -3,6 +3,7 @@ package imis
 import iwill.*
 import grails.converters.*
 import groovy.json.*
+import com.google.zxing.BarcodeFormat
 
 class ApiController extends BaseController {
 
@@ -87,6 +88,11 @@ class ApiController extends BaseController {
         render result as JSON
     }
 
+    def codeService
 
+    def barcode() {
+        BarcodeFormat format = BarcodeFormat.CODE_128
+        codeService.renderImage(response, params.code, params.w.toInteger()?:300, params.h.toInteger()?:100, format)    
+    }
 
 }

@@ -94,6 +94,26 @@ class RemindController {
             flash.message = '删除成功'
             redirect(action: 'list')
             return
+        } 
+        if (params.copy) {
+            def foo = new Remind() 
+            def tar = Remind.get(params.id.toLong())
+            foo.name = tar.name
+            foo.type = tar.type
+            foo.person = tar.person
+            foo.address = tar.address
+            foo.sdate = tar.sdate
+            foo.edate = tar.edate
+            foo.cdate = tar.cdate
+            foo.owner = tar.owner
+            foo.man = tar.man
+            foo.tel = tar.tel
+            foo.comment = tar.comment
+            foo.status = tar.status
+            foo.save()
+            flash.message = '复制成功'
+            redirect(action: 'edit', id: foo.id)
+            return
         }
         def foo = Remind.get(params.id.toLong())
         [foo: foo]
@@ -107,6 +127,7 @@ class RemindController {
         'p4': '小作坊',
         'p5': '税务登记证',
         'p6': '商标注册证',
+        'p7': '小吃店',
     ]
 
     static owner = [

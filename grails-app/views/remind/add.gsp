@@ -118,7 +118,7 @@
             </div>
             <div class="control-group">
                 <div class="controls">
-                    <button type="submit" name="add" value="true" class="btn btn-primary">新增</button>
+                    <button type="submit" name="add" value="true" class="btn btn-primary">保存</button>
                 </div>
             </div>            
         </form>    

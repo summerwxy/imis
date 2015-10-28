@@ -47,7 +47,7 @@
 
 <div class="row">
     <div class="span10 offset1">
-        <g:link action="add" class="btn btn-primary">新增</g:link>
+        <g:link action="add" class="btn btn-success">新增</g:link>
         <table class="table table-condensed">
             <thead>
                 <tr>

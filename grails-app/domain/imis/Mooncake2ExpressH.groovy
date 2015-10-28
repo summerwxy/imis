@@ -16,10 +16,15 @@ class Mooncake2ExpressH {
     String expressNo
     String status
 
+    float lat
+    float lng
+
     // system data
     Date dateCreated
     Date lastUpdated
     
     static constraints = {
+        lat(nullable: true)        
+        lng(nullable: true)        
     }
 }

@@ -58,6 +58,11 @@
 
 <div class="row">
     <div class="span10 offset1">
+
+        <a class="btn btn-primary" href="list_mooncake">没快递单号</a>
+        <a class="btn" href="list_mooncake?show=express">有快递单号</a>
+
+    
         <table class="table table-condensed">
             <thead>
                 <tr>
@@ -78,9 +83,15 @@
                         <td>${it.id}</td> 
                         <td>${it.name}</td> 
                         <td>${it.phone}</td> 
-                        <td>${it.address}</td> 
+                        <td>
+                            ${(it.address.length() > 6)? it.address[0..5] : it.address}
+                        </td> 
                         <td>${it.P_NAME}</td> 
-                        <td>${it.GT_NO}</td>
+                        <td>
+                            <g:img uri="/api/barcode?code=${it.GT_NO}&w=150&h=50"/>
+                            <br/>
+                            ${it.GT_NO}
+                        </td>
                         <td>
                             ${it.BACK_NUM == 0 ? '未提货' : '已提货'} 
                         </td>

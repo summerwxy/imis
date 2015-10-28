@@ -58,39 +58,49 @@
 
 <div class="row">
     <div class="span10 offset1">
+
+        <a class="btn btn-primary" href="list_mooncake2">没快递单号</a>
+        <a class="btn" href="list_mooncake2?show=express">有快递单号</a>
+
+
         <table class="table table-condensed">
             <thead>
                 <tr>
                     <th>id</th>
                     <th>收件人</th>
-                    <th>电话</th>
-                    <th>省</th>
                     <th>市</th>
-                    <th>区</th>
-                    <th>地址</th>
-                    <th>状态</th>
                     <th>费用</th>
-                    <th>重量</th>
                     <th>礼盒</th>
+                    <th>状态</th>
                     <th>券</th>
                     <th>顺丰快递</th>
                 </tr>
             </thead>
             <tbody id="data">
                 <g:each in="${list}" status="i" var="it">
-                    <tr>
+                    <tr class="${it.status == 'unpaid' ? 'error' : 'success'}">
                         <td>${it.id}</td> 
                         <td>${it.name}</td> 
-                        <td>${it.phone}</td> 
-                        <td>${it.lv1}</td> 
                         <td>${it.lv2}</td> 
-                        <td>${it.lv3}</td> 
-                        <td>${it.address}</td> 
-                        <td>${it.status == 'unpaid' ? '未付款' : '已付款'}</td> 
                         <td>${it.fee}</td>
-                        <td>${it.kg}</td>
                         <td>${it.boxs.replace(', ', '<br/>')}</td>
-                        <td>${it.tickets.replace(', ', '<br/>')}</td>
+                        <td>${it.status == 'unpaid' ? '未付款' : '已付款'}</td> 
+                        <td>
+                            <g:if test="${it.status == 'unpaid' && it.tickets.indexOf('已') != -1}">
+                                ${it.tickets.replace(', ', '<br/>')}
+                                <br/>[拿券来工厂提货]
+                            </g:if>
+                            <g:else>
+                                <g:each in="${it.ticketsList}" status="ii" var="itt">
+                                    <g:if test="${it.status == 'paid'}">
+                                        <g:img uri="/api/barcode?code=${itt[0..15]}&w=150&h=50"/> 
+                                        <br/>
+                                    </g:if>
+                                    ${itt}
+                                    <br/>
+                                </g:each>
+                            </g:else>
+                        </td>
                         <td>
                             <input type="text" name="express_no" value="${it.express_no}">
                             <input type="hidden" name="id" value="${it.id}"/>

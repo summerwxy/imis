@@ -10,6 +10,8 @@ class MooncakeExpress {
     String status
     String vid
 
+    float lat
+    float lng
 
     // system data
     Date dateCreated
@@ -17,5 +19,7 @@ class MooncakeExpress {
 
 
     static constraints = {
+        lat( nullable: true )
+        lng( nullable: true )            
     }
 }

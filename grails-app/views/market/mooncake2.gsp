@@ -184,6 +184,7 @@
 
 <body id="page-top" class="index">
     <!-- Header -->
+    <g:if test="${h.status == 'paid'}">
     <header>
         <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
             <div class="row">
@@ -191,9 +192,17 @@
             </div>
         </div>
     </header>
+    </g:if>
     <g:if test="${h.status != 'paid'}">
+        
+        <div style="text-align: center;">
+            <h1>活动结束！</h1> 
+            还有未提货的礼券请致电服务热线：0512-65687148 询问        
+        </div>
+        <br/><br/>
 
-
+    </g:if>
+    <g:elseif test="${1 == 2}">
         <!-- Contact Section -->
         <section style="padding-top: 30px; padding-bottom: 10px;">
             <div class="container">
@@ -329,7 +338,7 @@
                 </div>
             </div>
         </section>
-    </g:if>
+    </g:elseif>
     <g:else>
 
         <!-- 付款后 -->
@@ -426,6 +435,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-8 col-lg-offset-2">
+                        <h4>快递单号：${h.express_no}</h4>
                         <table class="table table-striped">
                             <tr>
                                 <th>时间</th>

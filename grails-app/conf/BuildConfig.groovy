@@ -81,6 +81,10 @@ grails.project.dependency.resolution = {
 
         // change default groovy version
         compile 'org.codehaus.groovy:groovy-all:2.2.2'
+
+        // barcode
+        runtime 'com.google.zxing:core:3.2.1'
+        runtime 'com.google.zxing:javase:3.2.1'
     }
 
     plugins {
