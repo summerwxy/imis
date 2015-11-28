@@ -809,7 +809,7 @@ class PosController extends BaseController {
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账  
+                suM(isnull(PAY_12,0)) as  挂账, sum(isnull(PAY_21,0)) as 支付宝 
                 INTO #tmp_Party全 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
@@ -822,7 +822,7 @@ class PosController extends BaseController {
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账  
+                suM(isnull(PAY_12,0)) as  挂账, sum(isnull(PAY_21,0)) as 支付宝
                 INTO #小于三千 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
@@ -835,7 +835,7 @@ class PosController extends BaseController {
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账  
+                suM(isnull(PAY_12,0)) as  挂账 , sum(isnull(PAY_21,0)) as 支付宝 
                 INTO #大于三千
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
@@ -889,7 +889,7 @@ class PosController extends BaseController {
                 group by a.S_NO , SUBSTRING(a.SL_DATE,1,6)
 
                 select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千 , g.营业总额 as 大于三千,
-                isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) as 实际业绩,wp.非公司未分类S
+                isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) as 实际业绩,wp.非公司未分类S
                 into #tmp_Party
                 from #tmp_Party全 a 
                 left join #非公司券业绩S b on a.S_NO=b.S_NO and a.SL_DATE=b.SL_DATE
