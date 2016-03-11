@@ -749,7 +749,7 @@ class PosController extends BaseController {
             v.each { ii ->
                 t.in_qty += ii.in_qty
                 t.in_amt += ii.in_amt
-                t.sst_qty += ii.sst_amt
+                t.sst_qty += ii.sst_qty
                 t.sst_amt += ii.sst_amt
                 t.ba_qty += ii.ba_qty
                 t.ba_qty1 += ii.ba_qty1
@@ -763,10 +763,10 @@ class PosController extends BaseController {
             }
             if (t.ba_qty == 0) {
                 t.back_rate = 0
-            } else if ((t.in_qty + t.sst_qty + t.tr_in_qty - t.tr_out_qty) == 0) {
+            } else if ((t.in_amt + t.sst_amt + t.tr_in_amt - t.tr_out_amt) == 0) {
                 t.back_rate = 99999999           
             } else {
-                t.back_rate = t.ba_qty / (t.in_qty + t.sst_qty + t.tr_in_qty - t.tr_out_qty)
+                t.back_rate = t.ba_amt / (t.in_amt + t.sst_amt + t.tr_in_amt - t.tr_out_amt)
             }
             v << t 
         }
@@ -786,6 +786,7 @@ class PosController extends BaseController {
             def edate = "${y}/${m}/${last}"
             def sql = _.sql
             def ms = Iwill.myStore(request, sql) 
+            // 0083
             def s = """
                 declare @p_dates varchar(10)
                 declare @p_datee varchar(10)
@@ -794,6 +795,9 @@ class PosController extends BaseController {
                 set @p_dates = ?
                 set @p_datee = ?
                 set @store = ?
+
+                DECLARE @datesBQ CHAR(8) = CONVERT(CHAR,   dateadd(year,-1,CONVERT(DATETIME, '${y}-${m}-01')), 112) -- 日期
+                DECLARE @dateeQ CHAR(8) = CONVERT(CHAR,   dateadd(year ,-1,dateadd(month,1,('${y}-${m}-01'))), 112) -- 日期
 
                 -- =============== START ==================
                 DECLARE @dates CHAR(8) = CONVERT(CHAR,  CONVERT(DATETIME, @p_dates), 112) -- 日期
@@ -805,7 +809,7 @@ class PosController extends BaseController {
                 and GI_DATE>=@dates and GI_DATE<=@datee  and GI_BILL_SNO in (@store)
                 group by GI_BILL_SNO,SUBSTRING(GI_DATE,1,8) 
 
-                SELECT  SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
+                SELECT  SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量, COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
@@ -818,7 +822,8 @@ class PosController extends BaseController {
                 group by a.S_NO, b.S_NAME, SL_DATE
                 order by a.S_NO
 
-                SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
+                -- SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
+                SELECT  SUBSTRING(SL_DATE,1,6) as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,suM(isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)) as  现金H,                
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
@@ -826,12 +831,14 @@ class PosController extends BaseController {
                 INTO #小于三千 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee) and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0))<3000
+                -- WHERE (SL_DATE >= @dates AND SL_DATE <= @datee) and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0))<3000
+                WHERE ((SL_DATE >= @dates AND SL_DATE < @datee)or (SL_DATE >= @datesBQ AND SL_DATE < @dateeQ) ) and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000
                 and a.S_NO in (@store)
                 group by a.S_NO, b.S_NAME, SL_DATE
                 order by a.S_NO
 
-                SELECT SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
+                -- SELECT SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
+                SELECT SUBSTRING(SL_DATE,1,6) as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数, suM(isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)) as  现金H,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
@@ -839,7 +846,8 @@ class PosController extends BaseController {
                 INTO #大于三千
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and a.S_NO in (@store)
+                -- WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and a.S_NO in (@store)
+                WHERE ((SL_DATE >= @dates AND SL_DATE < @datee) or (SL_DATE >= @datesBQ AND SL_DATE < @dateeQ) )  and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2
                 and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0))>=3000 and a.SL_SOURCE=2
                 group by a.S_NO, b.S_NAME, SL_DATE
                 order by a.S_NO
@@ -888,8 +896,10 @@ class PosController extends BaseController {
                 WHERE H.SL_DATE >= @dates AND H.SL_DATE <= @datee   and a.S_NO in (@store) and rtrim(ltrim(CARD_NAME)) in  ('月结券')   and c.SL_DATE<@dates  
                 group by a.S_NO , SUBSTRING(a.SL_DATE,1,6)
 
-                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千 , g.营业总额 as 大于三千,
+                -- select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千 , g.营业总额 as 大于三千,
+                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.现金H as  小于三千 , g.现金H as 大于三千,
                 isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) as 实际业绩,wp.非公司未分类S
+                ,   isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) -ISNULL(g.现金H,0) as 实际业绩奖金
                 into #tmp_Party
                 from #tmp_Party全 a 
                 left join #非公司券业绩S b on a.S_NO=b.S_NO and a.SL_DATE=b.SL_DATE
@@ -903,7 +913,8 @@ class PosController extends BaseController {
                 left join #非公司月结券QS NN on a.S_NO=NN.S_NO and a.SL_DATE=NN.SL_DATE
                 left join #非公司未分类 wp on a.S_NO=wp.S_NO and a.SL_DATE=wp.SL_DATE
 
-                select sl_date as 日期 , S_NO as 门店代码, S_NAME as 门店名称,  营业总额,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,isnull(实际业绩,0)  as 实际业绩, 总客流量
+                --select sl_date as 日期 , S_NO as 门店代码, S_NAME as 门店名称,  营业总额,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,isnull(实际业绩,0)  as 实际业绩, 总客流量
+                select sl_date as 日期, S_NO as 门店代码, S_NAME as 门店名称, 营业天数, 营业总额,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,isnull(实际业绩奖金,0)  as 实际业绩, 总客流量
                 into #tmp_Party2 
                 from #tmp_Party
 

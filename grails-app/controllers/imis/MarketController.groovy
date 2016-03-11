@@ -70,6 +70,7 @@ class MarketController extends BaseController {
             left join GIFT_TOKEN b on a.vid = b.vid
             left join PART c ON b.GI_P_NO = c.P_NO
             where ${params.show ? 'not' : ''} express_no = ''
+            and act_no = '2016_spring'
             order by id desc
         """
         sql.eachRow(s, []) { 
@@ -205,6 +206,75 @@ class MarketController extends BaseController {
         [vid: vid, pno: pno, name: name, phone: phone, address: address, express: express, einfo: einfo]
     }
 
+    def gift_box() {
+        def this_act = '2016_spring_over' // 活動結束 把名字改掉 就可以了
+        def vid = flash.vid ?: ''
+        def pno = flash.pno ?: ''
+        def name = flash.name ?: ''
+        def phone = flash.phone ?: ''
+        def address = flash.address ?: ''
+        def a = flash.a ?: params.a
+        def express = ''
+        def einfo = []
+        def lv1s = []
+        def is_act = (this_act == a)
+        if (params.vid) { // 扫码来的
+            def sql = _.sql
+            def s = """
+                select a.GI_P_NO, b.* 
+                from GIFT_TOKEN a
+                left join mooncake_express b on a.vid = b.vid
+                where a.vid = ?
+            """
+            def row = sql.firstRow(s, [params.vid])
+            if (row) {            
+                vid = params.vid
+                pno = row.GI_P_NO
+                name = row.name
+                phone = row.phone
+                address = row.address
+            } else {
+                render '无效访问！' // AD page ?
+                return
+            }     
+            if (row.express_no) {
+                express = row.express_no
+                // 有快递单号
+                einfo = _.parseJson("http://v.juhe.cn/exp/index?key=b7f2944ba8eef30883de8eb21830bb6f&com=sf&no=${row.express_no}")
+            }
+            // 省
+            s = "select distinct lv1 from zone where lv1 in ('江苏省', '浙江省', '上海', '安徽省') order by lv1"
+            sql.eachRow(s, []) {
+                lv1s << it.toRowResult()
+            }
+        } else if (!params.vid && !params.code && !flash.vid) {
+            render '无效访问！！' // AD page ?
+            return
+        } else if (params.act in ['兑换', '更新信息']) { // 兑换 / 更新信息
+            def sql = _.sql
+            def s = "select * from mooncake_express where vid = ?"
+            def row = sql.firstRow(s, [params.code])
+            if (row) {
+                s = "update mooncake_express set name = ?, phone = ?, address = ? where vid = ?"
+                sql.execute(s, [params.name, params.phone, params.address, params.code])
+                flash.msg = "更新成功！"
+            } else {
+                s = "insert into mooncake_express(version, name, phone, address, vid, status, express_no, date_created, last_updated, act_no) values(0, ?, ?, ?, ?, 'init', '', GETDATE(), GETDATE(), ?)"
+                sql.execute(s, [params.name, params.phone, params.address, params.code, this_act])
+                flash.msg = "兑换成功！"
+            }
+            flash.vid = params.code
+            flash.pno = params.pno
+            flash.name = params.name
+            flash.phone = params.phone
+            flash.address = params.address
+            flash.a = params.a
+            redirect(action: 'gift_box')
+        } 
+
+        [vid: vid, pno: pno, name: name, phone: phone, address: address, express: express, einfo: einfo, lv1s: lv1s, is_act: is_act, a: a]    
+    }
+
 
     def mooncake_weight = [
         '90150022': 900, // 2015爱维尔沁意礼盒
@@ -307,10 +377,6 @@ class MarketController extends BaseController {
                 }
             }
         } else if (params.act == 'pay') {
-            println params.hid
-            println Mooncake2ExpressH
-            println Mooncake2ExpressH.get(params.hid)
-
             h = Mooncake2ExpressH.get(params.hid)
             if (h.status == 'unpaid') {
                 def h2del = h

@@ -2,6 +2,8 @@ package imis
 
 class MooncakeExpress {
 
+    String actNo
+
     String name
     String phone
     String address
@@ -21,5 +23,6 @@ class MooncakeExpress {
     static constraints = {
         lat( nullable: true )
         lng( nullable: true )            
+        actNo ( nullable: true )
     }
 }

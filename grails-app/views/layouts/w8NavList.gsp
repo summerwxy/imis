@@ -22,25 +22,27 @@
         <li>
             <g:link controller="market" action="list_mooncake">
                 <i class="icon-double-angle-right"></i>
-                月饼快递（网络推广版）
+                节庆快递（邮寄版）
             </g:link>
         </li>
+        <!--
         <li>
             <g:link controller="market" action="list_mooncake2">
                 <i class="icon-double-angle-right"></i>
-                月饼快递（顺丰提货版）
+                节庆快递（顺丰提货版）
             </g:link>
         </li>
         <li>
             <g:link controller="market" action="express_update">
                 <i class="icon-double-angle-right"></i>
-                月饼快递（单号更新）
+                节庆快递（单号更新）
             </g:link>
         </li>
+        
         <li>
             <g:link controller="market" action="express_map">
                 <i class="icon-double-angle-right"></i>
-                月饼快递（地图）
+                节庆快递（地图）
             </g:link>
         </li>
         <li>
@@ -55,6 +57,7 @@
                 门店营业模式设定
             </g:link>
         </li>
+        -->
         <li>
             <g:link controller="pos" action="f1">
                 <i class="icon-double-angle-right"></i>
@@ -131,12 +134,14 @@
                 POS考勤查询
             </g:link>
         </li>
+        <!--
         <li>
             <g:link controller="pos" action="adimg">
                 <i class="icon-double-angle-right"></i>
                 客显图片
             </g:link>
         </li>
+        -->
         <li>
             <g:link controller="fi" action="allot">
                 <i class="icon-double-angle-right"></i>
