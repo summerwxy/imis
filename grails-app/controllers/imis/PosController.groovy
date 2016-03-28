@@ -705,16 +705,18 @@ class PosController extends BaseController {
                 where b.S_NO in (@store) and a.P_NO in (select P_NO from #bb) 
                 and b.SPK_DATE >= @pos_dates and b.SPK_DATE <= @pos_datee
                 group by a.S_NO, a.P_NO
-                select b.S_NO_IN as S_NO, a.P_NO, sum(a.tr_out_qty) as tr_in_qty, SUM(a.TR_cost) as TR_in_AMT
+                select b.S_NO_IN as S_NO, a.P_NO, sum(a.tr_out_qty) as tr_in_qty, SUM(a.tr_out_qty * c.P_PRICE) as TR_in_AMT
                 into #gg
                 from TRAN_D a
                 left join TRAN_H b on a.TR_NO = b.TR_NO and a.S_NO_OUT = b.S_NO_OUT
+                left join PART c on a.P_NO = c.P_NO
                 where b.FLS_NO in ('CF', 'CO') and b.S_NO_IN in (@store) and a.P_NO in (select P_NO from #bb) and b.TR_DATE >= @pos_dates and b.TR_DATE <= @pos_datee
                 group by b.S_NO_IN, a.P_NO
-                select b.S_NO_OUT as S_NO, a.P_NO, sum(a.tr_out_qty) as tr_out_qty, SUM(a.TR_cost) as tr_out_amt
+                select b.S_NO_OUT as S_NO, a.P_NO, sum(a.tr_out_qty) as tr_out_qty, SUM(a.tr_out_qty * c.P_PRICE) as tr_out_amt
                 into #hh
                 from TRAN_D a
                 left join TRAN_H b on a.TR_NO = b.TR_NO and a.S_NO_OUT = b.S_NO_OUT
+                left join PART c on a.P_NO = c.P_NO
                 where b.FLS_NO in ('CF', 'CO') and b.S_NO_OUT in (@store) and a.P_NO in (select P_NO from #bb) and b.TR_DATE >= @pos_dates and b.TR_DATE <= @pos_datee
                 group by b.S_NO_OUT, a.P_NO
                 SELECT a.S_NO, a.S_NAME, b.category, b.P_NO, b.P_NAME
@@ -788,118 +790,137 @@ class PosController extends BaseController {
             def ms = Iwill.myStore(request, sql) 
             // 0083
             def s = """
-                declare @p_dates varchar(10)
-                declare @p_datee varchar(10)
-                declare @store varchar(10)
-
-                set @p_dates = ?
-                set @p_datee = ?
-                set @store = ?
-
-                DECLARE @datesBQ CHAR(8) = CONVERT(CHAR,   dateadd(year,-1,CONVERT(DATETIME, '${y}-${m}-01')), 112) -- 日期
-                DECLARE @dateeQ CHAR(8) = CONVERT(CHAR,   dateadd(year ,-1,dateadd(month,1,('${y}-${m}-01'))), 112) -- 日期
+                declare @p_dates varchar(20)
+                declare @p_datee varchar(20)
+                declare @p_store varchar(20)
+                set @p_dates = ? -- '20160227'
+                set @p_datee = ? -- '20160301'
+                set @p_store= ? -- '8022015'
 
                 -- =============== START ==================
-                DECLARE @dates CHAR(8) = CONVERT(CHAR,  CONVERT(DATETIME, @p_dates), 112) -- 日期
-                DECLARE @datee CHAR(8) = CONVERT(CHAR,  CONVERT(DATETIME, @p_datee), 112) -- 日期
+                declare @dates varchar(8) 
+                declare @datee varchar(8) 
+                set @dates = convert(char, convert(datetime, @p_dates), 112) -- 日期
+                set @datee = convert(char, convert(datetime, @p_datee), 112) -- 日期
+
                 ---充值----
-                select  SUBSTRING(GI_DATE,1,8)  as GI_DATE,GI_BILL_SNO as S_NO, SUM(GI_AMT) as 充值
+                select  GI_DATE,GI_BILL_SNO as S_NO, SUM(GI_AMT) as 充值
                 into #充值
                 from GIFT_LIFE  where GI_TYPE ='ADD'   and GI_BILL_SNO<>'0000000' and REMARK1='' 
-                and GI_DATE>=@dates and GI_DATE<=@datee  and GI_BILL_SNO in (@store)
-                group by GI_BILL_SNO,SUBSTRING(GI_DATE,1,8) 
+                and GI_DATE>=@dates and GI_DATE<@datee  and  GI_BILL_SNO in(@p_store)
+                group by GI_BILL_SNO,GI_DATE
 
-                SELECT  SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量, COUNT(distinct a.SL_DATE) as 营业天数,
+                SELECT  SL_DATE,a.S_NO, b.S_NAME,b.r_no, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账, sum(isnull(PAY_21,0)) as 支付宝 
+                suM(isnull(PAY_12,0)) as  挂账, suM(isnull(PAY_21,0)) as  支付宝 
                 INTO #tmp_Party全 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)
-                and a.S_NO in (@store)
-                group by a.S_NO, b.S_NAME, SL_DATE
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee   and  a.S_NO in(@p_store)---  and a.S_NO='8022002'
+                group by a.S_NO, b.S_NAME,b.r_no,SL_DATE
                 order by a.S_NO
 
-                -- SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
-                SELECT  SUBSTRING(SL_DATE,1,6) as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,suM(isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)) as  现金H,                
+                SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账, sum(isnull(PAY_21,0)) as 支付宝
+                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝
                 INTO #小于三千 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                -- WHERE (SL_DATE >= @dates AND SL_DATE <= @datee) and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0))<3000
-                WHERE ((SL_DATE >= @dates AND SL_DATE < @datee)or (SL_DATE >= @datesBQ AND SL_DATE < @dateeQ) ) and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000
-                and a.S_NO in (@store)
-                group by a.S_NO, b.S_NAME, SL_DATE
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000  and  a.S_NO in(@p_store)
+                group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
 
-                -- SELECT SL_DATE as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,--COUNT(distinct a.SL_DATE) as 营业天数,
-                SELECT SUBSTRING(SL_DATE,1,6) as SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数, suM(isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)) as  现金H,
+                SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账 , sum(isnull(PAY_21,0)) as 支付宝 
+                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝
                 INTO #大于三千
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                -- WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and a.S_NO in (@store)
-                WHERE ((SL_DATE >= @dates AND SL_DATE < @datee) or (SL_DATE >= @datesBQ AND SL_DATE < @dateeQ) )  and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2
-                and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0))>=3000 and a.SL_SOURCE=2
-                group by a.S_NO, b.S_NAME, SL_DATE
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2 and  a.S_NO in(@p_store)
+                group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
-                ------销售非公司券---------
-                SELECT SL_DATE as SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券礼券S into #非公司券礼券S
+
+                ----本月客取非本月客订
+                SELECT  c.SL_DATE,a.S_NO, b.S_NAME, count(a.SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
+                sum(isnull(a.SL_AMT,0)) as 总价, sum(isnull(a.SL_DISC_AMT,0)) as 折扣, sum(isnull(a.PAY_AMT,0)) as 营业总额, sum(isnull(a.PAY_CASH,0)) as 现金, --status_C 状态
+                sum(isnull(a.PAY_CARD,0)) as 非公司券, sum(isnull(a.PAY_3,0)) as 阳光卡, sum(isnull(a.PAY_4,0)) as 促销券, sum(isnull(a.PAY_5,0)) as 提货券, sum(isnull(a.PAY_6,0)) as 代金券, 
+                sum(isnull(a.PAY_7,0)) as 代金券溢收, sum(isnull(a.PAY_8,0)) as 促销券溢收, sum(isnull(a.PAY_9,0)) as 旧阳光卡, sum(isnull(a.PAY_10,0)) as 银联卡, sum(isnull(a.PAY_11,0)) as 提货券溢收,
+                suM(isnull(a.PAY_12,0)) as  挂账  , suM(isnull(a.PAY_21,0)) as  支付宝
+                INTO #本月取
+                FROM SALE_H a
+                LEFT JOIN STORE b ON a.S_NO = b.S_NO
+                left join SALE_ORDER_H c on a.SL_KEY_ORDER=c.SL_KEY
+                WHERE a.SL_DATE >= @dates AND a.SL_DATE < @datee  and a.SL_SOURCE=2  and  a.S_NO in(@p_store)
+                and c.SL_DATE<@dates
+                group by a.S_NO, b.S_NAME,c.SL_DATE
+                order by a.S_NO
+
+                SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券礼券S into #非公司券礼券S---相当于现金
                 FROM SALE_CARD_PAY 
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and S_NO in (@store)
-                and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=2)
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=2) and  S_NO in(@p_store)
                 group by S_NO,SL_DATE
 
-                SELECT SL_DATE as SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券业绩S into #非公司券业绩S
+                SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券业绩S into #非公司券业绩S---相当于券
                 FROM SALE_CARD_PAY 
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and S_NO in (@store)
-                and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)
-                group by S_NO, SL_DATE
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)  and  S_NO in(@p_store)
+                group by SL_DATE,S_NO
 
-                SELECT SL_DATE as SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券促销券S into #非公司券促销券S
+                SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券促销券S into #非公司券促销券S---相当于促销券
                 FROM SALE_CARD_PAY 
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee)  and S_NO in (@store)
-                and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=3)
-                group by S_NO, SL_DATE
-
-                SELECT SL_DATE as SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券月结券S into #非公司券月结券S
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=3)  and  S_NO in(@p_store)
+                group by SL_DATE,S_NO
+ 
+                SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司未分类S into #非公司未分类
                 FROM SALE_CARD_PAY 
-                WHERE (SL_DATE >= @dates AND SL_DATE <= @datee) and S_NO in (@store) and rtrim(ltrim(CARD_NAME))  in  ('月结券')
-                group by S_NO, SL_DATE
-
-                SELECT SL_DATE as SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司未分类S into #非公司未分类
-                FROM SALE_CARD_PAY 
-                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and S_NO in (@store) and rtrim(ltrim(CARD_NAME))   in  (  select FUNC_NAME from  STORE_CARD where  GROUPID='BANK' and USERD='Y' and FUNC_NAME not in   (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp]))
-                group by S_NO,SL_DATE
-                 
-                SELECT  SUBSTRING(a.SL_DATE,1,6) as SL_DATE, a.S_NO, SUM(isnull(AMT,0)) as 非公司业绩QS into #非公司业绩QS
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))   in  (  select FUNC_NAME from  STORE_CARD where  GROUPID='BANK' and USERD='Y' and FUNC_NAME not in   (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp]))  and  S_NO in(@p_store)
+                group by SL_DATE, S_NO
+  
+                SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券月结券S into #非公司券月结券S
+                FROM SALE_CARD_PAY  
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  ('月结券')  and  S_NO in(@p_store)
+                group by SL_DATE, S_NO
+ 
+                SELECT   c.SL_DATE,a.S_NO, SUM(isnull(AMT,0)) as 非公司业绩QS into #非公司业绩QS
                 FROM SALE_CARD_PAY  a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO 
                 LEFT JOIN SALE_H H ON a.SL_KEY = H.SL_KEY 
                 left join SALE_ORDER_H c on H.SL_KEY_ORDER=c.SL_KEY
-                WHERE H.SL_DATE >= @dates AND H.SL_DATE <= @datee and a.S_NO in (@store) and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)
-                and c.SL_DATE<@dates  
-                group by a.S_NO ,SUBSTRING(a.SL_DATE,1,6) 
+                WHERE H.SL_DATE >= @dates AND H.SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)
+                and c.SL_DATE<@dates    and  a.S_NO in(@p_store)
+                group by c.SL_DATE,a.S_NO
 
-                SELECT   SUBSTRING(a.SL_DATE,1,6) as SL_DATE,a.S_NO, SUM(isnull(AMT,0)) as 非公司月结券QS into #非公司月结券QS
+                SELECT  H.SL_DATE,a.S_NO, SUM(isnull(AMT,0)) as 非公司月结券QS into #非公司月结券QS
                 FROM SALE_CARD_PAY  a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO       LEFT JOIN SALE_H H ON a.SL_KEY = H.SL_KEY 
                 left join SALE_ORDER_H c on H.SL_KEY_ORDER=c.SL_KEY
-                WHERE H.SL_DATE >= @dates AND H.SL_DATE <= @datee   and a.S_NO in (@store) and rtrim(ltrim(CARD_NAME)) in  ('月结券')   and c.SL_DATE<@dates  
-                group by a.S_NO , SUBSTRING(a.SL_DATE,1,6)
+                WHERE H.SL_DATE >= @dates AND H.SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  ('月结券')   and c.SL_DATE<@dates   and  a.S_NO in(@p_store) 
+                group by a.S_NO,H.SL_DATE
+                
+                ---物料----
+                select SL_DATE,S_NO, SUM(SL_AMT)as 节庆总额,sum(SL_TAXAMT) as 节庆营业总额
+                into #节庆
+                from SALE_D
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee and S_NO <> ''
+                and ((DP_NO >= 8011 and DP_NO <= 8099) or (DP_NO >= 9011 and DP_NO <= 9099) or (DP_NO >= 9111 and DP_NO <= 9199))   and  S_NO in(@p_store)
+                group by S_NO,SL_DATE
 
-                -- select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千 , g.营业总额 as 大于三千,
-                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.现金H as  小于三千 , g.现金H as 大于三千,
-                isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) as 实际业绩,wp.非公司未分类S
-                ,   isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0)+ISNULL(d.非公司券月结券S,0) -ISNULL(g.现金H,0) as 实际业绩奖金
+                select SL_DATE,S_NO, SUM(AMT)as 节庆提货总额
+                into #节庆提货
+                from SALE_CARD
+                WHERE SL_DATE >= @dates AND SL_DATE < @datee and S_NO <> ''
+                and CARD_TYPE = 4 and CARD_NO like '9%'  and  S_NO in(@p_store)
+                group by S_NO,SL_DATE
+
+                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千, g.营业总额 as 大于三千, q.营业总额 as 本月取,
+                n.充值, isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0) as 实际业绩,
+                isnull(a.支付宝,0)+isnull(q.现金,0)+ISNULL(q.银联卡,0)+ISNULL(q.挂账,0)+isnull(MM.非公司业绩QS,0)+isnull(NN.非公司月结券QS,0) as 非本月实际业绩
+                , isnull(OO.节庆总额, 0) as 节庆总额 , isnull(OO.节庆营业总额, 0) as 节庆营业总额, ISNULL(PP.节庆提货总额, 0) as 节庆提货总额,wp.非公司未分类S
                 into #tmp_Party
                 from #tmp_Party全 a 
                 left join #非公司券业绩S b on a.S_NO=b.S_NO and a.SL_DATE=b.SL_DATE
@@ -909,38 +930,40 @@ class PosController extends BaseController {
                 left join #小于三千 f on a.S_NO=f.S_NO and a.SL_DATE=f.SL_DATE
                 left join #大于三千 g on a.S_NO=g.S_NO and a.SL_DATE=g.SL_DATE
                 left join #充值 n on a.S_NO=n.S_NO and a.SL_DATE=n.GI_DATE
+                left join #本月取 q on a.S_NO=q.S_NO and a.SL_DATE=q.SL_DATE
                 left join #非公司业绩QS MM on a.S_NO=MM.S_NO and a.SL_DATE=MM.SL_DATE
                 left join #非公司月结券QS NN on a.S_NO=NN.S_NO and a.SL_DATE=NN.SL_DATE
+                left join #节庆 OO on a.S_NO = OO.S_NO and a.SL_DATE=OO.SL_DATE
+                left join #节庆提货 PP on a.S_NO = PP.S_NO and a.SL_DATE=PP.SL_DATE
                 left join #非公司未分类 wp on a.S_NO=wp.S_NO and a.SL_DATE=wp.SL_DATE
 
-                --select sl_date as 日期 , S_NO as 门店代码, S_NAME as 门店名称,  营业总额,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,isnull(实际业绩,0)  as 实际业绩, 总客流量
-                select sl_date as 日期, S_NO as 门店代码, S_NAME as 门店名称, 营业天数, 营业总额,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,isnull(实际业绩奖金,0)  as 实际业绩, 总客流量
-                into #tmp_Party2 
-                from #tmp_Party
-
-                select a.* , isnull(day_target, 0) as 日目标, isnull(b.days, 0) as days  from  #tmp_Party2 a left join iwill_store_target b on a.门店代码=b.s_no and convert(char(6), a.日期)=b.months
-                where 门店代码<>'8027010' 
-                order by 门店代码,日期
-            
+                select b.R_NO, b.R_NAME,SL_DATE, a.S_NO, S_NAME, 营业天数, (isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/营业天数 as 平均营业额, 营业总额 , isnull(代金券,0)+ISNULL(代金券溢收,0)+ISNULL(非公司券礼券S,0)+ISNULL(阳光卡,0) as 礼券回收,非公司未分类S
+                , isnull(促销券,0)+ISNULL(非公司券促销券S,0) as 促销券, 折扣, isnull(大于三千,0) as 大于三千,  isnull(本月取,0) as 本月取, isnull(实际业绩,0)+ISNULL(非公司券月结券S,0) as 实际业绩订单, ISNULL(充值,0) as 充值,ISNULL(非公司券月结券S,0) as 非公司券月结券S
+                ,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,  ISNULL(非本月实际业绩,0) as 非本月实际业绩
+                , 总客流量, 总客流量/营业天数 as 平均客流, (isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/总客流量 as 客单价, 提货券,提货券溢收
+                ,节庆总额, 节庆提货总额,节庆营业总额, isnull(convert(decimal(18,2), c.day_target), 1) as 目标,convert(decimal(18,2),(isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/isnull(c.day_target,1)) as 达成率
+                from #tmp_Party a
+                left join REGION b on a.R_NO=b.R_NO
+                left join iwill_store_target c on a.S_NO=c.s_no and left(a.SL_DATE,6)=c.months
+                where a.S_NO<>'8027010'
+                order by b.R_NO,a.S_NO,SL_DATE
             """
-            def total = [门店代码: '', 门店名称: '', 日期: ' 合计:', 营业总额: 0, 实际业绩: 0, 实际业绩奖金: 0, 总客流量: 0, 日目标: 0]
+            def total = [S_NO: '', S_NAME: '', SL_DATE: ' 合计:', 营业总额: 0, 实际业绩奖金: 0, 总客流量: 0, 目标: 0]
             sql.eachRow(s, [sdate.toString(), edate.toString(), ms.s_no.toString()]) {
                 data << it.toRowResult()
                 total.营业总额 += it.营业总额
-                total.实际业绩 += it.实际业绩
                 total.实际业绩奖金 += it.实际业绩奖金
                 total.总客流量 += it.总客流量
-                total.日目标 += it.日目标
+                total.目标 += it.目标
             }
-            
             // TODO: total 日目标 改一下
             s = 'select month_target from iwill_store_target where s_no = ? and months = ?'
-            def mt = 1
+            def mt = total.目标
             def row = sql.firstRow(s, [ms.s_no.toString(), y+m])
             if (row) {
                 mt = row.month_target
             }
-            total.日目标 = mt 
+            total.目标 = mt 
             data << total
         }
         [data: data]

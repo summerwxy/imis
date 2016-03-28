@@ -93,16 +93,16 @@
             <tbody id="data">
                 <g:each in="${data}" status="i" var="row">
                     <tr>
-                        <td nowrap>${row.门店代码}</td>
-                        <td nowrap>${row.门店名称}</td>
-                        <td nowrap>${row.日期}</td>
+                        <td nowrap>${row.S_NO}</td>
+                        <td nowrap>${row.S_NAME}</td>
+                        <td nowrap>${row.SL_DATE}</td>
                         <td nowrap>${row.营业总额}</td>
-                        <td nowrap>${row.实际业绩}</td>
+                        <td nowrap>${row.实际业绩奖金}</td>
                         <td nowrap>${row.总客流量}</td>
-                        <td nowrap>${Math.round(row.日目标 * 10) / 10}</td>
+                        <td nowrap>${Math.round(row.目标 * 10) / 10}</td>
                         <td nowrap>
-                            <g:if test="${row.日目标}">
-                                ${Math.round(row.实际业绩 / row.日目标 * 10000) / 100} %
+                            <g:if test="${row.目标}">
+                                ${Math.round(row.实际业绩奖金 / row.目标 * 10000) / 100} %
                             </g:if>
                             <g:else>
                                 N/A
