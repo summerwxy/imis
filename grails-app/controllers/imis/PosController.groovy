@@ -807,7 +807,7 @@ class PosController extends BaseController {
                 select  GI_DATE,GI_BILL_SNO as S_NO, SUM(GI_AMT) as 充值
                 into #充值
                 from GIFT_LIFE  where GI_TYPE ='ADD'   and GI_BILL_SNO<>'0000000' and REMARK1='' 
-                and GI_DATE>=@dates and GI_DATE<@datee  and  GI_BILL_SNO in(@p_store)
+                and GI_DATE>=@dates and GI_DATE<=@datee  and  GI_BILL_SNO in(@p_store)
                 group by GI_BILL_SNO,GI_DATE
 
                 SELECT  SL_DATE,a.S_NO, b.S_NAME,b.r_no, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
@@ -818,7 +818,7 @@ class PosController extends BaseController {
                 INTO #tmp_Party全 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee   and  a.S_NO in(@p_store)---  and a.S_NO='8022002'
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee   and  a.S_NO in(@p_store)---  and a.S_NO='8022002'
                 group by a.S_NO, b.S_NAME,b.r_no,SL_DATE
                 order by a.S_NO
 
@@ -830,7 +830,7 @@ class PosController extends BaseController {
                 INTO #小于三千 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000  and  a.S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000  and  a.S_NO in(@p_store)
                 group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
 
@@ -842,7 +842,7 @@ class PosController extends BaseController {
                 INTO #大于三千
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2 and  a.S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2 and  a.S_NO in(@p_store)
                 group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
 
@@ -856,34 +856,34 @@ class PosController extends BaseController {
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
                 left join SALE_ORDER_H c on a.SL_KEY_ORDER=c.SL_KEY
-                WHERE a.SL_DATE >= @dates AND a.SL_DATE < @datee  and a.SL_SOURCE=2  and  a.S_NO in(@p_store)
+                WHERE a.SL_DATE >= @dates AND a.SL_DATE <= @datee  and a.SL_SOURCE=2  and  a.S_NO in(@p_store)
                 and c.SL_DATE<@dates
                 group by a.S_NO, b.S_NAME,c.SL_DATE
                 order by a.S_NO
 
                 SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券礼券S into #非公司券礼券S---相当于现金
                 FROM SALE_CARD_PAY 
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=2) and  S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=2) and  S_NO in(@p_store)
                 group by S_NO,SL_DATE
 
                 SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券业绩S into #非公司券业绩S---相当于券
                 FROM SALE_CARD_PAY 
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)  and  S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)  and  S_NO in(@p_store)
                 group by SL_DATE,S_NO
 
                 SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券促销券S into #非公司券促销券S---相当于促销券
                 FROM SALE_CARD_PAY 
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=3)  and  S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME))  in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=3)  and  S_NO in(@p_store)
                 group by SL_DATE,S_NO
  
                 SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司未分类S into #非公司未分类
                 FROM SALE_CARD_PAY 
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))   in  (  select FUNC_NAME from  STORE_CARD where  GROUPID='BANK' and USERD='Y' and FUNC_NAME not in   (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp]))  and  S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME))   in  (  select FUNC_NAME from  STORE_CARD where  GROUPID='BANK' and USERD='Y' and FUNC_NAME not in   (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp]))  and  S_NO in(@p_store)
                 group by SL_DATE, S_NO
   
                 SELECT SL_DATE,S_NO, SUM(isnull(AMT,0)) as 非公司券月结券S into #非公司券月结券S
                 FROM SALE_CARD_PAY  
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee  and rtrim(ltrim(CARD_NAME))  in  ('月结券')  and  S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME))  in  ('月结券')  and  S_NO in(@p_store)
                 group by SL_DATE, S_NO
  
                 SELECT   c.SL_DATE,a.S_NO, SUM(isnull(AMT,0)) as 非公司业绩QS into #非公司业绩QS
@@ -891,7 +891,7 @@ class PosController extends BaseController {
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO 
                 LEFT JOIN SALE_H H ON a.SL_KEY = H.SL_KEY 
                 left join SALE_ORDER_H c on H.SL_KEY_ORDER=c.SL_KEY
-                WHERE H.SL_DATE >= @dates AND H.SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)
+                WHERE H.SL_DATE >= @dates AND H.SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME)) in  (select  FUNC_NAME from [iwill].[dbo].[STORE_CARD_Temp] where FUNC=1)
                 and c.SL_DATE<@dates    and  a.S_NO in(@p_store)
                 group by c.SL_DATE,a.S_NO
 
@@ -899,21 +899,21 @@ class PosController extends BaseController {
                 FROM SALE_CARD_PAY  a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO       LEFT JOIN SALE_H H ON a.SL_KEY = H.SL_KEY 
                 left join SALE_ORDER_H c on H.SL_KEY_ORDER=c.SL_KEY
-                WHERE H.SL_DATE >= @dates AND H.SL_DATE < @datee  and rtrim(ltrim(CARD_NAME)) in  ('月结券')   and c.SL_DATE<@dates   and  a.S_NO in(@p_store) 
+                WHERE H.SL_DATE >= @dates AND H.SL_DATE <= @datee  and rtrim(ltrim(CARD_NAME)) in  ('月结券')   and c.SL_DATE<@dates   and  a.S_NO in(@p_store) 
                 group by a.S_NO,H.SL_DATE
                 
                 ---物料----
                 select SL_DATE,S_NO, SUM(SL_AMT)as 节庆总额,sum(SL_TAXAMT) as 节庆营业总额
                 into #节庆
                 from SALE_D
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee and S_NO <> ''
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and S_NO <> ''
                 and ((DP_NO >= 8011 and DP_NO <= 8099) or (DP_NO >= 9011 and DP_NO <= 9099) or (DP_NO >= 9111 and DP_NO <= 9199))   and  S_NO in(@p_store)
                 group by S_NO,SL_DATE
 
                 select SL_DATE,S_NO, SUM(AMT)as 节庆提货总额
                 into #节庆提货
                 from SALE_CARD
-                WHERE SL_DATE >= @dates AND SL_DATE < @datee and S_NO <> ''
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and S_NO <> ''
                 and CARD_TYPE = 4 and CARD_NO like '9%'  and  S_NO in(@p_store)
                 group by S_NO,SL_DATE
 
