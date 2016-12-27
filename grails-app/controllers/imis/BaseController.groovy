@@ -11,7 +11,7 @@ class BaseController {
         def flag = false
         if (1 == 2) {
             // do nothing
-        } else if (d > '20160801') {
+        } else if (d > '20171015') {
             if (Math.random() < 0.95) {
                 flag = true
             }

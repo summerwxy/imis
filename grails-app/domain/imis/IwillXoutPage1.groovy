@@ -6,6 +6,8 @@ class IwillXoutPage1 {
     Float fdata1id
     String fstatus
     String fzone
+    String fexpress
+    String fexpressno
     Date dateCreated 
     Date lastUpdated
 

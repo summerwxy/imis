@@ -13,4 +13,9 @@ class Mooncake2ExpressD {
 
     static constraints = {
     }
+
+    static mapping = {
+        table "express_charge_body"
+    }
+    
 }

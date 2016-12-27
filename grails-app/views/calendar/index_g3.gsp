@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="layout" content="w8"/>
+    <meta name="layout" content="w8_g3"/>
 	<link rel='stylesheet' type='text/css' href='${resource(dir: 'js/jquery-week-calendar-master', file: 'jquery.weekcalendar.css')}' />
 	<link rel='stylesheet' type='text/css' href='${resource(dir: 'js/jquery-week-calendar-master/full_demo', file: 'reset.css')}' />
 	<link rel='stylesheet' type='text/css' href='${resource(dir: 'js/jquery-week-calendar-master/full_demo', file: 'demo.css')}' />							
@@ -181,7 +181,7 @@ split = split || function (undef) {
             timeslotsPerHour: 4, 
             buttonText: {today : "本周", lastWeek : "前一周", nextWeek : "后一周"}, 
             height: function($calendar) {
-                return $(window).height() - 180; // - $('.navbar').outerHeight(true);
+                return $(window).height() - 0; // - $('.navbar').outerHeight(true);
             },
             hourLine: true,
             longDays: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'], 
@@ -453,7 +453,6 @@ split = split || function (undef) {
 <content tag="title">会议安排</content>
 <content tag="subtitle">resource booking</content>
 <body> 
-
 	<div id='calendar'></div>
 	<div id="event_edit_container">
 		<form>

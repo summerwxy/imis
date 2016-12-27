@@ -27,4 +27,8 @@ class Mooncake2ExpressH {
         lat(nullable: true)        
         lng(nullable: true)        
     }
+
+    static mapping = {
+        table "express_charge_head"
+    }
 }

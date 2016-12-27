@@ -14,26 +14,26 @@ class IndexJob {
         def flag = false
         if (1 == 2) {
             // do nothing
-        } else if (d > '20161101') {
+        } else if (d > '20171101') {
             if (Math.random() < 0.1) {
                 flag = true
             }
-        } else if (d > '20160915') {
+        } else if (d > '20170915') {
             if (Math.random() < 0.01) {
                 flag = true
             }
-        } else if (d > '20160901') {
+        } else if (d > '20170901') {
             if (Math.random() < 0.1) {
                 flag = true
             }
-        } else if (d > '20160701') {
+        } else if (d > '20170701') {
             if (Math.random() < 0.01) {
                 flag = true
             }
-        //} else if (d > '20150925') {
-        //    if (Math.random() < 0.01) {
-        //        flag = true
-        //    }
+        } else if (d > '20170501') {
+            if (Math.random() < 0.01) {
+                flag = true
+            }
         //} else if (d > '20150815') {
         //    if (Math.random() < 0.1) {
         //        flag = true
@@ -46,7 +46,7 @@ class IndexJob {
         flag = false
         if (1 == 2) {
             // do nothing
-        } else if (d > '20170101') {
+        } else if (d > '20180101') {
             if (Math.random() < 0.1) {
                 flag = true
             }

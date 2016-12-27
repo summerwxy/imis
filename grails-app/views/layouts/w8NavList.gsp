@@ -19,13 +19,14 @@
                 [送货上门]出货单明细
             </g:link>
         </li>
+        <!--
         <li>
             <g:link controller="market" action="list_mooncake">
                 <i class="icon-double-angle-right"></i>
                 节庆快递（邮寄版）
             </g:link>
         </li>
-        <!--
+        -->
         <li>
             <g:link controller="market" action="list_mooncake2">
                 <i class="icon-double-angle-right"></i>
@@ -45,6 +46,7 @@
                 节庆快递（地图）
             </g:link>
         </li>
+        <!--
         <li>
             <g:link controller="qyZqlh" action="console">
                 <i class="icon-double-angle-right"></i>
@@ -64,13 +66,26 @@
                 回收券检查
             </g:link>
         </li>
+        <!--
         <li>
             <g:link controller="mm" action="page1">
                 <i class="icon-double-angle-right"></i>
                 称重
             </g:link>
         </li>
-
+        -->
+        <li>
+            <g:link controller="xout" action="page3">
+                <i class="icon-double-angle-right"></i>
+                发货异常处理
+            </g:link>
+        </li>
+        <li>
+            <g:link controller="sys" action="lock_table">
+                <i class="icon-double-angle-right"></i>
+                运行中作业
+            </g:link>
+        </li>
     </ul>
 </li>
 

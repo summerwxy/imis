@@ -15,6 +15,8 @@ class PosController extends BaseController {
 
     // 礼券回收检查
     def f1() {}
+    def f1_g3() {}
+    
 
     def f1_check() {
         def result = ['tid': params.tid, 'tno': params.tno, 'status': '无此券号', 'classname': 'error', 'sname': '', 'date': '']
@@ -58,6 +60,7 @@ class PosController extends BaseController {
             result = Filter.partByKeyword(Dao.getPart(), _.tc2sc(params.q).toLowerCase())
         } else if (params.w == 'pda') {
             result = Filter.partByPdaFail(Dao.getPart())
+
         }
         render (contentType: 'text/json') {result}         
     }
@@ -809,49 +812,51 @@ class PosController extends BaseController {
                 from GIFT_LIFE  where GI_TYPE ='ADD'   and GI_BILL_SNO<>'0000000' and REMARK1='' 
                 and GI_DATE>=@dates and GI_DATE<=@datee  and  GI_BILL_SNO in(@p_store)
                 group by GI_BILL_SNO,GI_DATE
+                
 
                 SELECT  SL_DATE,a.S_NO, b.S_NAME,b.r_no, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账, suM(isnull(PAY_21,0)) as  支付宝 
-                INTO #tmp_Party全 
+                suM(isnull(PAY_12,0)) as  挂账, suM(isnull(PAY_21,0)) as  支付宝, suM(isnull(PAY_23,0)) as  微信,
+                                suM( isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)+isnull(a.PAY_23,0)) as  现金H 
+INTO #tmp_Party全 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
                 WHERE SL_DATE >= @dates AND SL_DATE <= @datee   and  a.S_NO in(@p_store)---  and a.S_NO='8022002'
                 group by a.S_NO, b.S_NAME,b.r_no,SL_DATE
                 order by a.S_NO
-
                 SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝
+                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝 , suM(isnull(PAY_23,0)) as  微信
                 INTO #小于三千 
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))<3000  and  a.S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)+isnull(a.PAY_23,0))<3000  and  a.S_NO in(@p_store)
                 group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
 
                 SELECT  SL_DATE,a.S_NO, b.S_NAME, count(SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
-                sum(isnull(SL_AMT,0)) as 总价, sum(isnull(SL_DISC_AMT,0)) as 折扣, sum(isnull(PAY_AMT,0)) as 营业总额, sum(isnull(PAY_CASH,0)) as 现金, --status_C 状态
+                suM( isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0)+isnull(a.PAY_23,0)) as  现金H, 
+                sum(isnull(PAY_AMT,0)) as 营业总额,
+
                 sum(isnull(PAY_CARD,0)) as 非公司券, sum(isnull(PAY_3,0)) as 阳光卡, sum(isnull(PAY_4,0)) as 促销券, sum(isnull(PAY_5,0)) as 提货券, sum(isnull(PAY_6,0)) as 代金券, 
                 sum(isnull(PAY_7,0)) as 代金券溢收, sum(isnull(PAY_8,0)) as 促销券溢收, sum(isnull(PAY_9,0)) as 旧阳光卡, sum(isnull(PAY_10,0)) as 银联卡, sum(isnull(PAY_11,0)) as 提货券溢收,
-                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝
+                suM(isnull(PAY_12,0)) as  挂账  , suM(isnull(PAY_21,0)) as  支付宝 , suM(isnull(PAY_23,0)) as  微信
                 INTO #大于三千
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
-                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000 and a.SL_SOURCE=2 and  a.S_NO in(@p_store)
+                WHERE SL_DATE >= @dates AND SL_DATE <= @datee and (isnull(a.PAY_CASH,0)+isnull(a.PAY_10,0)+isnull(a.PAY_12,0)+isnull(a.PAY_21,0))>=3000  and  a.S_NO in(@p_store)
                 group by a.S_NO, b.S_NAME,SL_DATE
                 order by a.S_NO
-
                 ----本月客取非本月客订
                 SELECT  c.SL_DATE,a.S_NO, b.S_NAME, count(a.SL_KEY) as 总客流量,COUNT(distinct a.SL_DATE) as 营业天数,
                 sum(isnull(a.SL_AMT,0)) as 总价, sum(isnull(a.SL_DISC_AMT,0)) as 折扣, sum(isnull(a.PAY_AMT,0)) as 营业总额, sum(isnull(a.PAY_CASH,0)) as 现金, --status_C 状态
                 sum(isnull(a.PAY_CARD,0)) as 非公司券, sum(isnull(a.PAY_3,0)) as 阳光卡, sum(isnull(a.PAY_4,0)) as 促销券, sum(isnull(a.PAY_5,0)) as 提货券, sum(isnull(a.PAY_6,0)) as 代金券, 
                 sum(isnull(a.PAY_7,0)) as 代金券溢收, sum(isnull(a.PAY_8,0)) as 促销券溢收, sum(isnull(a.PAY_9,0)) as 旧阳光卡, sum(isnull(a.PAY_10,0)) as 银联卡, sum(isnull(a.PAY_11,0)) as 提货券溢收,
-                suM(isnull(a.PAY_12,0)) as  挂账  , suM(isnull(a.PAY_21,0)) as  支付宝
+                suM(isnull(a.PAY_12,0)) as  挂账  , suM(isnull(a.PAY_21,0)) as  支付宝 , suM(isnull(a.PAY_23,0)) as  微信
                 INTO #本月取
                 FROM SALE_H a
                 LEFT JOIN STORE b ON a.S_NO = b.S_NO
@@ -917,9 +922,9 @@ class PosController extends BaseController {
                 and CARD_TYPE = 4 and CARD_NO like '9%'  and  S_NO in(@p_store)
                 group by S_NO,SL_DATE
 
-                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千, g.营业总额 as 大于三千, q.营业总额 as 本月取,
-                n.充值, isnull(a.支付宝,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0) as 实际业绩,
-                isnull(a.支付宝,0)+isnull(q.现金,0)+ISNULL(q.银联卡,0)+ISNULL(q.挂账,0)+isnull(MM.非公司业绩QS,0)+isnull(NN.非公司月结券QS,0) as 非本月实际业绩
+                select a.*, b.非公司券业绩S, c.非公司券促销券S, d.非公司券月结券S, e.非公司券礼券S, f.营业总额 as  小于三千, g.现金H as 大于三千, q.营业总额 as 本月取,
+                n.充值, isnull(a.支付宝,0)+isnull(a.微信,0)+isnull(a.现金,0)+ISNULL(a.银联卡,0)+ISNULL(a.挂账,0)+isnull(b.非公司券业绩S,0)+ISNULL(n.充值,0) as 实际业绩,
+                isnull(q.支付宝,0)+isnull(q.微信,0)+isnull(q.现金,0)+ISNULL(q.银联卡,0)+ISNULL(q.挂账,0)+isnull(MM.非公司业绩QS,0)+isnull(NN.非公司月结券QS,0) as 非本月实际业绩
                 , isnull(OO.节庆总额, 0) as 节庆总额 , isnull(OO.节庆营业总额, 0) as 节庆营业总额, ISNULL(PP.节庆提货总额, 0) as 节庆提货总额,wp.非公司未分类S
                 into #tmp_Party
                 from #tmp_Party全 a 
@@ -940,8 +945,11 @@ class PosController extends BaseController {
                 select b.R_NO, b.R_NAME,SL_DATE, a.S_NO, S_NAME, 营业天数, (isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/营业天数 as 平均营业额, 营业总额 , isnull(代金券,0)+ISNULL(代金券溢收,0)+ISNULL(非公司券礼券S,0)+ISNULL(阳光卡,0) as 礼券回收,非公司未分类S
                 , isnull(促销券,0)+ISNULL(非公司券促销券S,0) as 促销券, 折扣, isnull(大于三千,0) as 大于三千,  isnull(本月取,0) as 本月取, isnull(实际业绩,0)+ISNULL(非公司券月结券S,0) as 实际业绩订单, ISNULL(充值,0) as 充值,ISNULL(非公司券月结券S,0) as 非公司券月结券S
                 ,isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0) as 实际业绩奖金,  ISNULL(非本月实际业绩,0) as 非本月实际业绩
-                , 总客流量, 总客流量/营业天数 as 平均客流, (isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/总客流量 as 客单价, 提货券,提货券溢收
-                ,节庆总额, 节庆提货总额,节庆营业总额, isnull(convert(decimal(18,2), c.day_target), 1) as 目标,convert(decimal(18,2),(isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/isnull(c.day_target,1)) as 达成率
+                , 总客流量
+                , case when 营业天数 = 0 then 0 else 总客流量/营业天数 end as 平均客流
+                , case when 总客流量 = 0 then 0 else (isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/总客流量 end as 客单价, 提货券,提货券溢收
+                ,节庆总额, 节庆提货总额,节庆营业总额, isnull(convert(decimal(18,2), c.day_target), 1) as 目标
+                , case when c.day_target = 0 then 0 else convert(decimal(18,2),(isnull(实际业绩,0)+ISNULL(非公司券月结券S,0)-ISNULL(大于三千,0))/isnull(c.day_target,1)) end as 达成率
                 from #tmp_Party a
                 left join REGION b on a.R_NO=b.R_NO
                 left join iwill_store_target c on a.S_NO=c.s_no and left(a.SL_DATE,6)=c.months

@@ -17,11 +17,25 @@ class XoutController extends BaseController {
         sql.eachRow(s, []) {
             drivers << it.toRowResult()
         }
-        ['today': today, 'drivers': drivers as JSON, 'zone': page1_zone]
+        ['today': today, 'drivers': drivers as JSON, 'zone': page1_zone, 'express': page1_express]
     }
 
-    def page1_zone = ['相城区', '工业园区', '金阊区', '平江区', '沧浪区', '虎丘区', '吴中区', '吴江区', '昆山市', '张家港市', '常熟市', '太仓市', '无锡市']
+    def page1_g3() {
+        def today = _.date2String(new Date(), 'yyyy/MM/dd')
+        def drivers = []
+        def sql = _.sql
+        def s = "select id, name, phone from iwill_data1 where enable = 1 order by name"
+        sql.eachRow(s, []) {
+            drivers << it.toRowResult()
+        }
+        ['today': today, 'drivers': drivers as JSON, 'zone': page1_zone, 'express': page1_express]
+    }
 
+   
+
+    def page1_zone = ['相城区', '工业园区', '金阊区', '平江区', '沧浪区', '虎丘区', '吴中区', '吴江区', '昆山市', '张家港市', '常熟市', '太仓市', '无锡市']
+    def page1_express = ['圆通快递', '顺丰快递']
+    
     def page1_load() {
         def data = ['h': [], 'b': [:]]
         def sql = _.sql
@@ -60,7 +74,8 @@ class XoutController extends BaseController {
             , c.FHeadSelfB0157 AS MOBILE
             , c.FHeadSelfB0159 AS CREATE_TIME 
             , CONVERT(char, c.FDate, 112) AS ORDER_DATE
-            , p1.fstatus AS STATUS, ISNULL(p1.fdata1id, 0) AS DID, d1.name AS DNAME, d1.phone AS DPHONE, ISNULL(p1.fzone, '') AS ZONE
+            , p1.fstatus AS STATUS, ISNULL(p1.fdata1id, 0) AS DID, d1.name AS DNAME, d1.phone AS DPHONE
+            , ISNULL(p1.fzone, '') AS ZONE, ISNULL(p1.fexpress, '') AS EXPRESS, ISNULL(p1.fexpressno, '') AS EXPRESSNO
             , t055.FName AS SHIP_TYPE
             FROM AIS20121019100529..ICStockBill c
             LEFT JOIN AIS20121019100529..t_Organization d ON c.FSupplyID = d.FItemID AND d.FItemID <> 0
@@ -115,9 +130,11 @@ class XoutController extends BaseController {
     def page1_change_status() {
         def row = IwillXoutPage1.findByFinterid(params.id)
         if (!row) {
-            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '')
+            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '', fexpress: '', fexpressno: '')
             qq.fstatus = '' // 很奇怪, 上面那行會出錯, 值變成 null
             qq.fzone = ''
+            qq.fexpress = ''
+            qq.fexpressno = ''
             if (!qq.save()) {
                 qq.errors.allErrors.each {
                     println '-----'
@@ -135,9 +152,11 @@ class XoutController extends BaseController {
     def page1_change_driver() {
         def row = IwillXoutPage1.findByFinterid(params.id)
         if (!row) {
-            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '')
+            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '', fexpress: '', fexpressno: '')
             qq.fstatus = ''
             qq.fzone = ''
+            qq.fexpress = ''
+            qq.fexpressno = ''
             if (!qq.save()) {
                 qq.errors.allErrors.each {
                     println '-----'
@@ -155,9 +174,11 @@ class XoutController extends BaseController {
     def page1_change_zone() {
         def row = IwillXoutPage1.findByFinterid(params.id)
         if (!row) {
-            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '')
+            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '', fexpress: '', fexpressno: '')
             qq.fstatus = ''
             qq.fzone = ''
+            qq.fexpress = ''
+            qq.fexpressno = ''
             if (!qq.save()) {
                 qq.errors.allErrors.each {
                     println '-----'
@@ -172,6 +193,49 @@ class XoutController extends BaseController {
         render (contentType: 'text/json') {['zone': params.zone, 'id': params.id]}
     }
 
+    def page1_change_express() {
+        def row = IwillXoutPage1.findByFinterid(params.id)
+        if (!row) {
+            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '', fexpress: '', fexpressno: '')
+            qq.fstatus = ''
+            qq.fzone = ''
+            qq.fexpress = ''
+            qq.fexpressno = ''
+            if (!qq.save()) {
+                qq.errors.allErrors.each {
+                    println '-----'
+                    println it
+                    println '-----'
+                }
+            }
+        }
+        row = IwillXoutPage1.findByFinterid(params.id)
+        row.fexpress = params.express
+        row.save()
+        render (contentType: 'text/json') {['express': params.express, 'id': params.id]}
+    }
+
+    def page1_change_expressno() {
+        def row = IwillXoutPage1.findByFinterid(params.id)
+        if (!row) {
+            def qq = new IwillXoutPage1(finterid: params.id, fdata1id: 0, fstatus: '', fzone: '', fexpress: '', fexpressno: '')
+            qq.fstatus = ''
+            qq.fzone = ''
+            qq.fexpress = ''
+            qq.fexpressno = ''
+            if (!qq.save()) {
+                qq.errors.allErrors.each {
+                    println '-----'
+                    println it
+                    println '-----'
+                }
+            }
+        }
+        row = IwillXoutPage1.findByFinterid(params.id)
+        row.fexpressno = params.expressno
+        row.save()
+        render (contentType: 'text/json') {['expressno': params.expressno, 'id': params.id]}
+    }
 
     def page2() {
         def url = ''
@@ -226,4 +290,47 @@ class XoutController extends BaseController {
 
         [result: result, items: items]
     }
+
+
+    def page3() {
+        def data = []
+        def the_date = ''
+        if (params.check == 'true') {
+            the_date = _.date2String(_.string2Date(params.theDate, 'yyyy/MM/dd'), 'yyyyMMdd')
+            def sql = _.sql
+            def s = """
+                use AIS20121019100529
+                select FItemID, SUM(FQty) as t_AWE_FQty into #t_AWE from t_AWE_SalesDeliveryEntry where CONVERT(CHAR, CONVERT(DATETIME, FDeliveryDate), 112)= :date group by FItemID
+                select b.FItemID,SUM(FAuxQty) as K3fqty into #k3fh from ICStockBill a left join ICStockBillEntry b on a.FInterID = b.FInterID where CONVERT(CHAR, CONVERT(DATETIME,a.FDate), 112)= :date and FHeadSelfB0152 = 40017 group by b.FItemID
+                select a.*, ISNULL(b.K3fqty, 0) as K3fqty into #all from #t_AWE a left join #k3fh b on a.FItemID = b.FItemID
+                select a.*, b.FNumber, FName, b.FModel from #all a left join t_ICItem b on a.FItemID = b.FItemID where t_AWE_FQty <> K3fqty
+                drop table #k3fh,#t_AWE,#all
+            """
+            sql.eachRow(s, [date: the_date]) {
+                data << it.toRowResult()
+            }
+        } 
+        [data: data, the_date: the_date]
+    }
+
+
+    def page3_del() {
+        def sql = _.sql
+        def s = """
+            use AIS20121019100529
+            -- 删除查询中间表
+            select FInterID into #t_AWE_FInterID from t_AWE_SalesDelivery where FItemID in (select FItemID from t_ICItem where FNumber = :item) and CONVERT(CHAR, CONVERT(DATETIME, FDeliveryDate), 112) = :date
+            delete from t_AWE_SalesDelivery where FInterID in (select FInterID from #t_AWE_FInterID)
+            delete from t_AWE_SalesDeliveryEntry where FInterID in (select FInterID from #t_AWE_FInterID)
+            -- 删除中间数据库
+            SELECT FBillNO  into #FBillNO FROM [K3ERPToPOS].[dbo].[T_AWE_SalesDelivery_Emp] where CONVERT(CHAR, CONVERT(DATETIME,FDate), 112) = :date and FBillNO not in (select FBillNO from AIS20121019100529..ICStockBill where CONVERT(CHAR, CONVERT(DATETIME, FDate), 112) = :date)
+            delete FROM [K3ERPToPOS].[dbo].[T_AWE_SalesDelivery_EmpEntry] where FBillNO in( SELECT FBillNO  from #FBillNO) 
+            delete FROM [K3ERPToPOS].[dbo].[T_AWE_SalesDelivery_Emp] where FBillNO in(SELECT FBillNO from #FBillNO) 
+            drop table #t_AWE_FInterID,#FBillNO
+        """
+        sql.execute(s, [date: params.date, item: params.item])
+        redirect(action: 'page3')
+    }
+
+
 }

@@ -71,7 +71,7 @@ class Iwill {
             s_name = row.S_NAME
         }    
         if (isDev || request.remoteAddr == '0:0:0:0:0:0:0:1' || request.remoteAddr.startsWith('192.168.')) {
-            s_no = '8024021' // 8027010 平江店 8021001 中山店 
+            s_no = '802A001' // 8027010 平江店 8021001 中山店 
             s_name = '平江店'
         }
         return [s_no: s_no, s_name: s_name]

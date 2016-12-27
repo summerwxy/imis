@@ -80,6 +80,27 @@ class MarketController extends BaseController {
         [list: list]         
     }
 
+    def list_mooncake_g3() {
+        def list = []
+        def sql = _.sql
+        def s = """
+            select a.*, b.GI_P_NO, b.BACK_NUM, b.GT_NO, c.P_NAME
+            from mooncake_express a
+            left join GIFT_TOKEN b on a.vid = b.vid
+            left join PART c ON b.GI_P_NO = c.P_NO
+            where ${params.show ? 'not' : ''} express_no = ''
+            and act_no = '2016_spring'
+            order by id desc
+        """
+        sql.eachRow(s, []) { 
+            list << it.toRowResult()
+        }         
+
+        [list: list]         
+    }
+
+
+
 
     def list_mooncake2() {
         def list = []
@@ -89,8 +110,8 @@ class MarketController extends BaseController {
 
             select b.*, d.P_NAME, c.BACK_NUM, c.GT_NO
             into #aa
-            from mooncake2expressd a 
-            left join mooncake2expressh b on a.h_id = b.id
+            from express_charge_body a 
+            left join express_charge_head b on a.h_id = b.id
             left join GIFT_TOKEN c on a.vid = c.vid
             left join PART d on c.GI_P_NO = d.P_NO
             where c.BACK_SNO in ('', '802B002')
@@ -571,13 +592,13 @@ class MarketController extends BaseController {
         def data = []
         def sql = _.sql
         def s = """
-            select 'a' + CAST(id as varchar) as id, address, phone, name, 1 as box, last_updated, lat, lng from mooncake_express
-            union all
-            select 'b' + CAST(b.id as varchar), lv1 + lv2 + lv3 + address, phone, name, COUNT(*), b.last_updated, lat, lng
-            from mooncake2expressd a left join mooncake2expressh b on a.h_id = b.id 
+            --select 'a' + CAST(id as varchar) as id, address, phone, name, 1 as box, last_updated, lat, lng from mooncake_express
+            --union all
+            select 'b' + CAST(b.id as varchar) as id, lv1 + lv2 + lv3 + address as address, phone, name, COUNT(*) as box, b.last_updated, lat, lng
+            from express_charge_body a left join express_charge_head b on a.h_id = b.id 
             where status = 'paid'
             group by b.id, lv1, lv2, lv3, address, phone, name, b.last_updated, lat, lng
-            order by last_updated
+            order by b.last_updated
         """
         sql.eachRow(s, []) {
             data << it.toRowResult()
@@ -595,7 +616,7 @@ class MarketController extends BaseController {
             sql.executeUpdate(s, [params.lng, params.lat, id])
         } else if (params.id?.indexOf('b') == 0) {
             def id = params.id - 'b'
-            def s = "update mooncake2expressh set lng = ?, lat = ? where id = ?"
+            def s = "update express_charge_head set lng = ?, lat = ? where id = ?"
             sql.executeUpdate(s, [params.lng, params.lat, id])
         }
         render (contentType: 'text/json') {result}
@@ -625,15 +646,15 @@ class MarketController extends BaseController {
         def sheet = book.getSheet(0)
         for (int i = 1; i < sheet.getRows(); i++) {
             def cells = sheet.getRow(i)
-            if (cells.length != 49) {
-                continue // 顺丰 excel 固定 49
+            if (cells.length != 59) {
+                continue // 顺丰 excel 固定 59
             }
             def foo = [:]
             foo['ono'] = cells[0].getContents()
             foo['eno'] = cells[1].getContents()
-            foo['man'] = cells[5].getContents()
-            foo['tel'] = cells[4].getContents()
-            foo['address'] = cells[3].getContents()
+            foo['man'] = cells[9].getContents()
+            foo['tel'] = cells[8].getContents()
+            foo['address'] = cells[7].getContents()
             foo['address'] = foo.address.length() > 6 ? foo.address[0..5] : foo.address
             def status = '!!??'
             if (!foo.ono) {
@@ -652,7 +673,10 @@ class MarketController extends BaseController {
                 }
             }
             if (foo.ono && foo.ono[0] == 'b') {
-                def mc = Mooncake2ExpressH.get(foo.ono - 'b')
+                status = '无效单号'
+            }
+            if (foo.ono && foo.ono[0] == 'c') {
+                def mc = Mooncake2ExpressH.get(foo.ono - 'c')
                 if (mc.expressNo && mc.expressNo == foo.eno) {
                     status = '不更新：单号相同'
                 } else if (mc.expressNo) {

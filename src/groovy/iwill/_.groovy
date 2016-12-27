@@ -17,6 +17,7 @@ import java.util.HashMap
 import java.util.Map
 import java.util.Set
 import javax.servlet.http.HttpServletRequest
+import org.apache.commons.lang.time.DurationFormatUtils
 
 class _ {
 
@@ -281,6 +282,10 @@ class _ {
             result = slurper.parse(new URL(url), 'utf-8')
         }    
         return result
+    }
+
+    static formatDuration(timeInMS, format="HH:mm:ss") {
+        return DurationFormatUtils.formatDuration(timeInMS, format)
     }
 
 }

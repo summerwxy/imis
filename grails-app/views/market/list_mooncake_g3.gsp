@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="layout" content="w8"/>
+	<meta name="layout" content="w8_g3"/>
     <style type="text/css" media="screen">
     .pagination {
         background-color: #EFEFEF;
@@ -59,8 +59,8 @@
 <div class="row">
     <div class="span10 offset1">
 
-        <a class="btn btn-primary" href="list_mooncake">没快递单号</a>
-        <a class="btn" href="list_mooncake?show=express">有快递单号</a>
+        <a class="btn btn-primary" href="list_mooncake_g3">没快递单号</a>
+        <a class="btn" href="list_mooncake_g3?show=express">有快递单号</a>
 
     
         <table class="table table-condensed">

@@ -17,7 +17,7 @@
         };
     }
     $(function() {
-        var tpl = _.template('<tr><td><\%=SUB_NAME%\></td><td><\%=D_CNAME%\></td><td><\%=P_NO%\></td><td><\%=P_NAME%\></td><td><\%=UN_NO%\></td><td><\%=P_PRICE%\></td><td><\%=P_STATUS%\><\%=P_STATUS_NAME%\></td><td><\%=P_PDA%\></td></tr>');
+        var tpl = _.template('<tr><td><\%=SUB_NAME%\></td><td><\%=D_CNAME%\></td><td><\%=P_NO%\></td><td><\%=P_NAME%\></td><td><\%=P_SPMODE%\></td><td><\%=UN_NO%\></td><td><\%=P_PRICE%\></td><td><\%=P_STATUS%\><\%=P_STATUS_NAME%\></td><td><\%=P_PDA%\></td></tr>');
  
         $('#part').keypress(throttle(function() {
             $.ajax({
@@ -70,6 +70,7 @@
                     <th>中分类</th>
                     <th>品号</th>
                     <th>品名</th>
+                    <th>规格</th>
                     <th>单位</th>
                     <th>单价</th>
                     <th>状态</th>

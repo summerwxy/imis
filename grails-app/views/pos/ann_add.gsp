@@ -78,7 +78,7 @@
                 <div class="controls">
                     <label class="radio">
                         <input type="radio" name="pageType" value="static" checked="checked">
-                        静态文档: 档案请放在 \\192.168.0.45\code\resin-4.0.32\webapps\ROOT\pages\<span id="showCode">${code}</span>.htm
+                        静态文档: 档案请放在 \\192.168.0.45\code\apache-tomcat-8.0.33\webapps\ROOT\pages\<span id="showCode">${code}</span>.htm
                     </label>
                     <label class="radio">
                         <input type="radio" id="urlType" name="pageType" value="url">

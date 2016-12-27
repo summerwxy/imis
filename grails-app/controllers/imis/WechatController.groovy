@@ -3,10 +3,21 @@ package imis
 import me.chanjar.weixin.common.util.*
 import me.chanjar.weixin.common.api.*
 import iwill.*
+import grails.converters.*
 
 class WechatController extends BaseController {
 
     def wx
+
+
+    def get_access_token() {
+        println request.remoteAddr
+
+        def result = [:]
+        result['accessToken'] = wx.wxService.getAccessToken()
+        result['expiresTime'] = wx.wxConfig.getExpiresTime()
+        render result as JSON
+    }
 
     def index() {
         println params

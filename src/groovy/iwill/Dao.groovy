@@ -32,7 +32,7 @@ class Dao {
         def result = []
         def sql = _.sql
         def s = """
-            select a.P_NO, a.P_NAME, a.P_PRICE, a.UN_NO, b.D_CNAME, c.SUB_NAME, a.P_STATUS, P_NAME + P_SPMODE AS PDASTR
+            select a.P_NO, a.P_NAME, a.P_PRICE, a.UN_NO, b.D_CNAME, c.SUB_NAME, a.P_STATUS, P_SPMODE, P_NAME + P_SPMODE AS PDASTR
             from PART a 
             left join DEPART b on a.D_NO = b.D_NO
             left join SUBDEP c on b.[GROUP] = c.SUBDEP

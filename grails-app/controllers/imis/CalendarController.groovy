@@ -9,6 +9,7 @@ class CalendarController extends BaseController {
     def rooms = ['大会议室', '厂长办公室']     
 
     def index() {
+
         def dateLong = 0
         if (params.date) {
             dateLong = _.dateString2Long(params.date, 'yyyy/MM/dd')
@@ -17,6 +18,17 @@ class CalendarController extends BaseController {
         }
         return ['rooms': rooms as JSON, dateLong: dateLong] 
     }
+
+    def index_g3() {
+        def dateLong = 0
+        if (params.date) {
+            dateLong = _.dateString2Long(params.date, 'yyyy/MM/dd')
+        } else {
+            dateLong = Calendar.getInstance().getTimeInMillis()
+        }
+        return ['rooms': rooms as JSON, dateLong: dateLong] 
+    }
+
 
     def show() {
         def result = [:]

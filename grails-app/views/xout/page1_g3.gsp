@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="layout" content="w8"/>
+	<meta name="layout" content="w8_g3"/>
     <link rel="stylesheet" href="${resource(dir: 'bootstrap-datetimepicker/css', file: 'datetimepicker.css')}" />
     <style>
     .xoutcard {
@@ -17,31 +17,8 @@
     }
     </style> 
     <script type="text/javascript">
-(function($) {  
-    $.fn.watch = function(callback) {  
-        return this.each(function() {  
-            //缓存以前的值  
-            $.data(this, 'originVal', $(this).val());  
-  
-            //event  
-            $(this).on('keyup paste', function() {  
-                var originVal = $(this, 'originVal');  
-                var currentVal = $(this).val();  
-  
-                if (originVal !== currentVal) {  
-                    $.data(this, 'originVal', $(this).val());  
-                    callback(currentVal);  
-                }  
-            });  
-        });  
-    }  
-})(jQuery);  
-
-
     var dselect;
     var zselect;
-    var eselect;
-    var einput = $('<input class="einput" type="text" placeholder="快递单号">');
 
     $(function() {
         // close sidebar
@@ -73,14 +50,6 @@
         zselect.append('<option value=""></option>');
         $.each(zones, function(k, v) {
             zselect.append('<option value="' + v + '">' + v + '</option>');        
-        });
-
-        // create express elect list
-        var expresses = ${express as grails.converters.JSON};
-        eselect = $('<select class="eselect" data-placeholder="未指定快递"/>');
-        eselect.append('<option value=""></option>');
-        $.each(expresses, function(k, v) {
-            eselect.append('<option value="' + v + '">' + v + '</option>');        
         });
         
         $('#the_tbody').on('click', '.btn-status', function(event) {
@@ -147,7 +116,7 @@
         $('#myModal').modal('show');
         // template
         var tpl = _.template('<tr class="tr<\%=FInterID%\>"><td><\%=SHIP_NO%\></td><td><\%=TAKE_DATE%\> <\%=TAKE_TIME%\></td><td><\%=STORE%\></td><td><\%=CONTACT%\></td><td><\%=PHONE%\></td><td rowspan="4"><\%=DETAIL%\></td></tr><tr class="tr<\%=FInterID%\>"><td colspan="5"><strong>地址:</strong> <\%=ADDR%\></td></tr><tr class="tr<\%=FInterID%\>"><td colspan="5"><strong>备注:</strong> <\%=REMARK%\></td></tr>');
-        var tpl2 = _.template('<tr class="tr<\%=FInterID%\>"><td colspan="5"><strong>送货方式:</strong> <\%=SHIP_TYPE%\> | <strong>订单类型:</strong> <\%=ORDER_TYPE%\> | <strong>状态:</strong> <button id="btn<\%=FInterID%\>" class="btn <\%=BtnClass%\> btn-status"><\%=BtnStatus%\></button> <br/> <strong>司机:</strong> <\%=Dselect%\> | <strong>区域:</strong> <\%=Zselect%\> <br/> <strong>快递:</strong> <\%=Eselect%\> | <strong>运单号:</strong> <\%=Einput%\></td></tr>');
+        var tpl2 = _.template('<tr class="tr<\%=FInterID%\>"><td colspan="5"><strong>送货方式:</strong> <\%=SHIP_TYPE%\> | <strong>订单类型:</strong> <\%=ORDER_TYPE%\> | <strong>状态:</strong> <button id="btn<\%=FInterID%\>" class="btn <\%=BtnClass%\> btn-status"><\%=BtnStatus%\></button> | <strong>司机:</strong> <\%=Dselect%\> | <strong>区域:</strong> <\%=Zselect%\></td></tr>');
         var tpl3 = _.template('<tr><td style="height: 2px; padding: 0px; background-color: #000000;" colspan="6"></td></tr>');
 
         var d = $('#the_day').val();
@@ -180,25 +149,12 @@
                 v['DETAIL'] = detail;
                 v['BtnClass'] = (v.STATUS == 'OK') ? 'btn-success' : 'btn-danger';
                 v['BtnStatus'] = (v.STATUS == 'OK') ? '已出' : '未出';
-                
                 var foo = dselect.clone().prop('id', 'select' + v.FInterID);
                 foo.find('[value=' + v.DID + ']').attr('selected', 'selected');
                 v['Dselect'] = foo.wrap('<div/>').parent().html();
-                
                 var bar = zselect.clone().prop('id', 'zselect' + v.FInterID);
                 bar.find('[value="' + v.ZONE + '"]').attr('selected', 'selected');
                 v['Zselect'] = bar.wrap('<div/>').parent().html();
-                
-                var baz = eselect.clone().prop('id', 'eselect' + v.FInterID);
-                baz.find('[value="' + v.EXPRESS + '"]').attr('selected', 'selected');
-                v['Eselect'] = baz.wrap('<div/>').parent().html();
-
-                var qux = einput.clone();
-                qux.prop('id', 'einput' + v.FInterID);
-                qux.prop('value', v.EXPRESSNO);
-                v['Einput'] = qux.wrap('<div/>').parent().html();
-
-
                 tar.append(tpl3()).append(tpl(v)).append(tpl2(v));
                 // check bg color by time
                 var bgclass = '';
@@ -247,59 +203,6 @@
                     alert('AJAX FAIL!');    
                 });                               
             });
-
-            $('.eselect').chosen({no_results_text: "找不到快递!", allow_single_deselect: true, width: '110px'})
-            .change(function(e) {
-                var id = this.id.substr(7);
-                var express = this.options[this.selectedIndex].value;
-                $.ajax({
-                    url: 'page1_change_express',
-                    type: 'get',
-                    data: {id: id, express: express}, 
-                    dataType: 'json'
-                }).done(function(json) {
-                    // DONE and do nothing
-                }).fail(function(json) {
-                    alert('AJAX FAIL!');    
-                });                               
-            });
-
-            //$("input:text").watch(function(value) {  
-            //  console.log(value);  
-            //}); 
-
-            $('.einput').on('keyup paste', function() { 
-                var val = $(this).val();
-                var id = this.id.substr(6);
-                console.log(id)
-                $.ajax({
-                    url: 'page1_change_expressno',
-                    type: 'get',
-                    data: {id: id, expressno: val}, 
-                    dataType: 'json'
-                }).done(function(json) {
-                    // DONE and do nothing
-                }).fail(function(json) {
-                    alert('AJAX FAIL!');    
-                });  
-            });  
-            /*
-            $(".einput").watch(function(value) {  
-                var id = this.id.substr(6);
-                console.log(id)
-                $.ajax({
-                    url: 'page1_change_expressno',
-                    type: 'get',
-                    data: {id: id, expressno: value}, 
-                    dataType: 'json'
-                }).done(function(json) {
-                    // DONE and do nothing
-                }).fail(function(json) {
-                    alert('AJAX FAIL!');    
-                });  
-            }); 
-            */
-
             update_cnt();
             $('#myModal').modal('hide');
         }).fail(function(json) {
